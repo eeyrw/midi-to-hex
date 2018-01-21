@@ -1,0 +1,33 @@
+cmake_minimum_required (VERSION 2.6)
+project (midi-to-hex)
+set(CMAKE_C_FLAGS "-Os -std=c99")
+set(CMAKE_CXX_FLAGS "-Os -std=c++11")
+
+if(WIN32)
+set(LIBUSB-1.0-PATH C:/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev0/mingw64/x86_64-w64-mingw32/lib/libusb-1.0.a)
+ADD_DEFINITIONS(-D WIN)
+endif()
+if(APPLE)
+set(LIBUSB-1.0-PATH /usr/local/Cellar/libusb/1.0.20/lib/libusb-1.0.dylib)
+INCLUDE_DIRECTORIES(/usr/local/Cellar/libusb/1.0.20/include)
+ADD_DEFINITIONS(-D MAC_OS)
+endif()
+if(UNIX AND NOT APPLE)
+set(LIBUSB-1.0-PATH /usr/lib/arm-linux-gnueabihf/libusb-1.0.so)
+
+ADD_DEFINITIONS(-D LINUX)
+endif()
+
+
+aux_source_directory(./midifile/src-library DIR_MIDI_LIB_SRCS)
+aux_source_directory(./Intel-HEX-Class/intelhex_class DIR_HEX_LIB_SRCS)
+aux_source_directory(./micronucleus_tool DIR_MICRONUCLEUS_SRCS)
+aux_source_directory(./micronucleus_tool/library DIR_MICRONUCLEUS_LIB_SRCS)
+INCLUDE_DIRECTORIES(./midifile/include)
+INCLUDE_DIRECTORIES(./Intel-HEX-Class/intelhex_class)
+INCLUDE_DIRECTORIES(./micronucleus_tool/library)
+INCLUDE_DIRECTORIES(./micronucleus_tool)
+
+# add the executable
+add_executable(midi-to-hex midi-to-hex.cpp ${DIR_MIDI_LIB_SRCS} ${DIR_HEX_LIB_SRCS} ${DIR_MICRONUCLEUS_SRCS} ${DIR_MICRONUCLEUS_LIB_SRCS})
+target_link_libraries(midi-to-hex ${LIBUSB-1.0-PATH})
