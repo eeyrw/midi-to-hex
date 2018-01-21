@@ -55,24 +55,32 @@ int main(int argc, char *argv[])
 
 void reMapNoteMap(map<int, vector<int>> &noteMap)
 {
-      auto noteMapItem = noteMap.begin();
-      for (; noteMapItem != std::prev(noteMap.end()); ++noteMapItem)
-      {
-            cout << "Tick: " << noteMapItem->first << " Key: ";
-            auto &noteItems = noteMapItem->second;
-            sort(noteItems.begin(),noteItems.end());
-            for (auto &note : noteItems)
-            {
-                  int reMapNote = reMapMidiNote(note);
-                  note = reMapNote;
-                  cout << reMapNote << " ";
-            }
-            cout << endl;
-            // removes all elements with the value -1
-            noteItems.erase(std::remove(noteItems.begin(), noteItems.end(), -1), noteItems.end());
-            if (noteItems.empty())
-                  noteMap.erase(noteMapItem);
-      }
+	auto noteMapItem = noteMap.begin();
+	for (; noteMapItem != std::prev(noteMap.end()) /* not hoisted */; /* no increment */)
+	{
+		cout << "Tick: " << noteMapItem->first << " Key: ";
+        auto &noteItems = noteMapItem->second;
+        sort(noteItems.begin(),noteItems.end());
+        for (auto &note : noteItems)
+        {
+            int reMapNote = reMapMidiNote(note);
+            note = reMapNote;
+            cout << reMapNote << " ";
+        }
+        cout << endl;
+        // removes all elements with the value -1
+        noteItems.erase(std::remove(noteItems.begin(), noteItems.end(), -1), noteItems.end());
+		
+		if (noteItems.empty())
+		{
+			noteMap.erase(noteMapItem++);    // or "it = m.erase(it)" since C++11
+		}
+		else
+		{
+			++noteMapItem;
+		}
+	}
+	  
       cout << "Tick: " << noteMapItem->first << " EOS" << endl;
 }
 
