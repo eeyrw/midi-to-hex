@@ -60,6 +60,7 @@ void reMapNoteMap(map<int, vector<int>> &noteMap)
       {
             cout << "Tick: " << noteMapItem->first << " Key: ";
             auto &noteItems = noteMapItem->second;
+            sort(noteItems.begin(),noteItems.end());
             for (auto &note : noteItems)
             {
                   int reMapNote = reMapMidiNote(note);
