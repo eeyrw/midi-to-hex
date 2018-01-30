@@ -24,6 +24,7 @@ void convertMidiFileToNoteMap(MidiFile &midifile, map<int, vector<int>> &noteMap
 void convertNoteMaptoRom(map<int, vector<int>> &noteMap, vector<char> &mem);
 void convertMemToHexFile(vector<char> &mem, string originalHexFilePath, string targetHexFilePath);
 void reMapNoteMap(map<int, vector<int>> &noteMap);
+void analyzeNoteMap(map<int, vector<int>> &noteMap);
 int reMapMidiNote(int midiNote);
 void checkOptions(Options &opts, int argc, char **argv);
 void example(void);
@@ -42,6 +43,7 @@ int main(int argc, char *argv[])
       MidiFile midifile(options.getArg(1));
       convertMidiFileToNoteMap(midifile, noteMap);
       vector<char> mem;
+      analyzeNoteMap(noteMap);
       reMapNoteMap(noteMap);
       convertNoteMaptoRom(noteMap, mem);
       convertMemToHexFile(mem, "./hex-file/mg.hex", "target.hex");
@@ -52,7 +54,26 @@ int main(int argc, char *argv[])
             micronucleus_argv[i] = argString[i];
       return micronucleus_main(4, micronucleus_argv);
 }
+void analyzeNoteMap(map<int, vector<int>> &noteMap)
+{
+      map<int,int> noteNumMap;
+      for (auto &noteMapItem : noteMap)
+      {
+            for(auto &note : noteMapItem.second)
+            {
+                  ++noteNumMap[note];
+            }
+      }
 
+      for(auto &noteNumMapItem:noteNumMap)
+      {
+            cout<<"Note: "<<noteNumMapItem.first<<" Times: "<<noteNumMapItem.second<<endl;
+      }
+
+      int highestPitch=noteNumMap.begin()->first;
+      int lowestPitch=(--noteNumMap.end())->first;
+      cout<<"Highest pitch: "<<highestPitch<<" Lowest pitch: "<<lowestPitch<<endl;
+}
 void reMapNoteMap(map<int, vector<int>> &noteMap)
 {
 	auto noteMapItem = noteMap.begin();
