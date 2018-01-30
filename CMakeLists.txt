@@ -4,7 +4,7 @@ set(CMAKE_C_FLAGS "-Os -std=c99")
 set(CMAKE_CXX_FLAGS "-Os -std=c++11")
 
 if(WIN32)
-set(LIBUSB-1.0-PATH C:/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev0/mingw64/x86_64-w64-mingw32/lib/libusb-1.0.a)
+set(LIBUSB-1.0-PATH F:/mingw64/x86_64-w64-mingw32/lib/libusb-1.0.a)
 ADD_DEFINITIONS(-D WIN)
 endif()
 if(APPLE)
