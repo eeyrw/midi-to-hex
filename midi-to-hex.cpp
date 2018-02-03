@@ -10,14 +10,16 @@
 #include <iomanip>
 #include <algorithm> // remove and remove_if
 #include "intelhexclass.h"
+#include "bprinter/table_printer.h"
 
 using namespace std;
+using bprinter::TablePrinter;
 
 typedef unsigned char uchar;
 
 // user interface variables
 Options options;
-bool globalDebugFlag=false;
+bool globalDebugFlag = false;
 
 // function declarations:
 void convertMidiFileToNoteMap(MidiFile &midifile, map<int, vector<int>> &noteMap);
@@ -56,52 +58,58 @@ int main(int argc, char *argv[])
 }
 void analyzeNoteMap(map<int, vector<int>> &noteMap)
 {
-      map<int,int> noteNumMap;
+      map<int, int> noteNumMap;
+      TablePrinter tp(&std::cout);
+      tp.AddColumn("Note pitch", 12);
+      tp.AddColumn("Occur times", 12);
+
       for (auto &noteMapItem : noteMap)
       {
-            for(auto &note : noteMapItem.second)
+            for (auto &note : noteMapItem.second)
             {
                   ++noteNumMap[note];
             }
       }
-
-      for(auto &noteNumMapItem:noteNumMap)
+      tp.PrintHeader();
+      for (auto &noteNumMapItem : noteNumMap)
       {
-            cout<<"Note: "<<noteNumMapItem.first<<" Times: "<<noteNumMapItem.second<<endl;
-      }
 
-      int highestPitch=noteNumMap.begin()->first;
-      int lowestPitch=(--noteNumMap.end())->first;
-      cout<<"Highest pitch: "<<highestPitch<<" Lowest pitch: "<<lowestPitch<<endl;
+            tp << noteNumMapItem.first << noteNumMapItem.second;
+      }
+      tp.PrintFooter();
+
+      int highestPitch = noteNumMap.begin()->first;
+      int lowestPitch = (--noteNumMap.end())->first;
+      cout << "Highest pitch: " << highestPitch << " Lowest pitch: " << lowestPitch << endl;
 }
 void reMapNoteMap(map<int, vector<int>> &noteMap)
 {
-	auto noteMapItem = noteMap.begin();
-	for (; noteMapItem != std::prev(noteMap.end()) /* not hoisted */; /* no increment */)
-	{
-		cout << "Tick: " << noteMapItem->first << " Key: ";
-        auto &noteItems = noteMapItem->second;
-        sort(noteItems.begin(),noteItems.end());
-        for (auto &note : noteItems)
-        {
-            int reMapNote = reMapMidiNote(note);
-            note = reMapNote;
-            cout << reMapNote << " ";
-        }
-        cout << endl;
-        // removes all elements with the value -1
-        noteItems.erase(std::remove(noteItems.begin(), noteItems.end(), -1), noteItems.end());
-		
-		if (noteItems.empty())
-		{
-			noteMap.erase(noteMapItem++);    // or "it = m.erase(it)" since C++11
-		}
-		else
-		{
-			++noteMapItem;
-		}
-	}
-	  
+      auto noteMapItem = noteMap.begin();
+      for (; noteMapItem != std::prev(noteMap.end()) /* not hoisted */; /* no increment */)
+      {
+            cout << "Tick: " << noteMapItem->first << " Key: ";
+            auto &noteItems = noteMapItem->second;
+            sort(noteItems.begin(), noteItems.end());
+            for (auto &note : noteItems)
+            {
+                  int reMapNote = reMapMidiNote(note);
+                  note = reMapNote;
+                  cout << reMapNote << " ";
+            }
+            cout << endl;
+            // removes all elements with the value -1
+            noteItems.erase(std::remove(noteItems.begin(), noteItems.end(), -1), noteItems.end());
+
+            if (noteItems.empty())
+            {
+                  noteMap.erase(noteMapItem++); // or "it = m.erase(it)" since C++11
+            }
+            else
+            {
+                  ++noteMapItem;
+            }
+      }
+
       cout << "Tick: " << noteMapItem->first << " EOS" << endl;
 }
 
@@ -234,7 +242,7 @@ void checkOptions(Options &opts, int argc, char *argv[])
       }
       else if (opts.getBoolean("debug"))
       {
-            globalDebugFlag=true;
+            globalDebugFlag = true;
       }
 
       if (opts.getArgCount() != 1)
