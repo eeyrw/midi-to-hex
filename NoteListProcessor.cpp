@@ -5,7 +5,7 @@ namespace noteListProcessor
 using bprinter::TablePrinter;
 MidiHelper::MidiHelper(string midiFilePath)
 {
-    midifile = MidiFile(midiFilePath);
+    this->midiFilePath=midiFilePath;
 }
 
 MidiHelper::~MidiHelper()
@@ -14,6 +14,7 @@ MidiHelper::~MidiHelper()
 
 void MidiHelper::getTickNoteMap(map<int, vector<int>> &tickNoteMap)
 {
+      MidiFile midifile = MidiFile(midiFilePath);
       midifile.absoluteTicks();
       midifile.joinTracks();
 
@@ -83,7 +84,7 @@ void NoteListProcessor::printAnalyzeResult()
       }
       tp.PrintFooter();
       cout << "Highest pitch: " << pitchName[highestPitch] << endl << "Lowest pitch: " << pitchName[lowestPitch] << endl;
-      cout << "Transpose suggestion: "<< suggestTranpose << " half note";
+      cout << "Transpose suggestion: "<< suggestTranpose << " half note" << endl;
 }
 
 void NoteListProcessor::analyzeNoteMap()

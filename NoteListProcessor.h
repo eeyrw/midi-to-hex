@@ -26,9 +26,9 @@ public:
   void getTickNoteMap(map<int, vector<int>> &tickNoteMap);
 
 private:
-  MidiFile midifile;
 
   int tickPerSecond = 120;
+  string midiFilePath;
 };
 
 class NoteListProcessor
