@@ -35,7 +35,7 @@ class NoteListProcessor
 public:
   int highestPitch;
   int lowestPitch;
-  int validHighestPitch = 105;
+  int validHighestPitch = 100;
   int validLowestPitch = 45;
   int suggestTranpose;
   double midiDuration;
