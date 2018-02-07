@@ -26,7 +26,6 @@ public:
   void getTickNoteMap(map<int, vector<int>> &tickNoteMap);
 
 private:
-
   int tickPerSecond = 120;
   string midiFilePath;
 };
@@ -36,24 +35,27 @@ class NoteListProcessor
 public:
   int highestPitch;
   int lowestPitch;
-  int validHighestPitch=105;
-  int validLowestPitch=45;
+  int validHighestPitch = 105;
+  int validLowestPitch = 45;
   int suggestTranpose;
+  double midiDuration;
   map<int, int> noteOccurTimesMap;
 
   NoteListProcessor(string midifilePath);
   ~NoteListProcessor();
-  void printAnalyzeResult();
+  void setExternTranspose(int t);
   void analyzeNoteMap();
-    void transposeTickNoteMap();
-    void generateBin(vector<char> &mem);
+  void transposeTickNoteMap();
+  void generateBin(vector<char> &mem);
 
 private:
   map<int, vector<int>> tickNoteMap;
   map<int, vector<int>> tickNoteMapTransposed;
   string pitchName[129];
+  bool useExternTransposeParam = false;
+  int externTransposeParam = 0;
   void InitPitchName();
-
+  void printAnalyzeResult();
 };
 }
 #endif

@@ -5,7 +5,7 @@ namespace noteListProcessor
 using bprinter::TablePrinter;
 MidiHelper::MidiHelper(string midiFilePath)
 {
-    this->midiFilePath=midiFilePath;
+      this->midiFilePath = midiFilePath;
 }
 
 MidiHelper::~MidiHelper()
@@ -31,7 +31,6 @@ void MidiHelper::getTickNoteMap(map<int, vector<int>> &tickNoteMap)
             }
       }
 
-
       // Find the last note off
       for (int i = midifile.getNumEvents(0) - 1; i >= 0; --i)
       {
@@ -48,32 +47,32 @@ void MidiHelper::getTickNoteMap(map<int, vector<int>> &tickNoteMap)
 
 NoteListProcessor::NoteListProcessor(string midifilePath)
 {
-      MidiHelper helper=MidiHelper(midifilePath);
+      MidiHelper helper = MidiHelper(midifilePath);
       helper.getTickNoteMap(tickNoteMap);
       InitPitchName();
 }
 NoteListProcessor::~NoteListProcessor()
 {
-
 }
 
 void NoteListProcessor::InitPitchName()
 {
-      string pitchInOneOctave[12]={"C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"};
-
+      string pitchInOneOctave[12] = {"C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"};
 
       // Midi pitch 12=C0,108=C8
-      for(int i=0;i!=127;++i)
+      for (int i = 0; i != 127; ++i)
       {
-            int octaveGroup=(i-12)/12;
-            int pitch=abs((i-12)%12);
-            pitchName[i]=to_string(octaveGroup)+":"+pitchInOneOctave[pitch];
+            int octaveGroup = (i - 12) / 12;
+            int pitch = abs((i - 12) % 12);
+            pitchName[i] = to_string(octaveGroup) + ":" + pitchInOneOctave[pitch];
       }
-      pitchName[128]="Fine";
+      pitchName[128] = "Fine";
 }
 
 void NoteListProcessor::printAnalyzeResult()
 {
+      cout << "Song duration: " << midiDuration << " s" << endl;
+      cout << "Note pitch v.s. occur times table: " << endl;
       TablePrinter tp(&std::cout);
       tp.AddColumn("Note pitch", 12);
       tp.AddColumn("Occur times", 12);
@@ -83,10 +82,17 @@ void NoteListProcessor::printAnalyzeResult()
             tp << pitchName[noteNumMapItem.first] << noteNumMapItem.second;
       }
       tp.PrintFooter();
-      cout << "Highest pitch: " << pitchName[highestPitch] << endl << "Lowest pitch: " << pitchName[lowestPitch] << endl;
-      cout << "Transpose suggestion: "<< suggestTranpose << " half note" << endl;
+      cout << "Highest pitch: " << pitchName[highestPitch] << endl
+           << "Lowest pitch: " << pitchName[lowestPitch] << endl;
+      cout << "Transpose suggestion: " << suggestTranpose << " half note" << endl;
+      if (useExternTransposeParam)
+            cout << "External transpose: " << externTransposeParam << " half note" << endl;
 }
-
+void NoteListProcessor::setExternTranspose(int t)
+{
+      useExternTransposeParam = true;
+      externTransposeParam = t;
+}
 void NoteListProcessor::analyzeNoteMap()
 {
       for (auto &noteMapItem : tickNoteMap)
@@ -97,44 +103,52 @@ void NoteListProcessor::analyzeNoteMap()
             }
       }
 
-      lowestPitch = noteOccurTimesMap.begin()->first; 
-      highestPitch = (--(--noteOccurTimesMap.end()))->first;//remove fine
+      lowestPitch = noteOccurTimesMap.begin()->first;
+      highestPitch = (--(--noteOccurTimesMap.end()))->first; //remove fine
 
-      int offestToVailidHighestPitch=validHighestPitch-highestPitch;
-      int offestToVailidLowestPitch=validLowestPitch-lowestPitch;
+      int offestToVailidHighestPitch = validHighestPitch - highestPitch;
+      int offestToVailidLowestPitch = validLowestPitch - lowestPitch;
 
-      if(offestToVailidHighestPitch>=0 && offestToVailidLowestPitch<=0)
-            suggestTranpose=0;
-      else if(offestToVailidHighestPitch<0)
-            suggestTranpose=offestToVailidHighestPitch; //keep the highest pitch by no means
-      else if(offestToVailidLowestPitch>=0)
+      if (offestToVailidHighestPitch >= 0 && offestToVailidLowestPitch <= 0)
+            suggestTranpose = 0;
+      else if (offestToVailidHighestPitch < 0)
+            suggestTranpose = offestToVailidHighestPitch; //keep the highest pitch by no means
+      else if (offestToVailidLowestPitch >= 0)
       {
-            if(abs(offestToVailidHighestPitch)>=abs(offestToVailidLowestPitch))
-                  suggestTranpose=offestToVailidLowestPitch;
+            if (abs(offestToVailidHighestPitch) >= abs(offestToVailidLowestPitch))
+                  suggestTranpose = offestToVailidLowestPitch;
             else
-                  suggestTranpose=offestToVailidHighestPitch;
+                  suggestTranpose = offestToVailidHighestPitch;
       }
+      midiDuration = (*(--tickNoteMap.cend())).first / 120.0;
+
+      printAnalyzeResult();
 }
 void NoteListProcessor::transposeTickNoteMap()
 {
-      for(auto &tickNoteItem:tickNoteMap)
+      int tranpose = 0;
+      if (useExternTransposeParam)
+            tranpose = externTransposeParam;
+      else
+            tranpose = suggestTranpose;
+      for (auto &tickNoteItem : tickNoteMap)
       {
-            vector<int> candidateNotes={};
-            for(auto &note:tickNoteItem.second)
+            vector<int> candidateNotes = {};
+            for (auto &note : tickNoteItem.second)
             {
-                  int transNote=note+suggestTranpose;
-                  if(transNote>=validLowestPitch && transNote<=validHighestPitch)
+                  int transNote = note + tranpose;
+                  if (transNote >= validLowestPitch && transNote <= validHighestPitch)
                   {
-                        candidateNotes.push_back(transNote-validLowestPitch);
+                        candidateNotes.push_back(transNote - validLowestPitch);
                   }
-                  if(note==128)
+                  if (note == 128)
                   {
                         candidateNotes.push_back(128);
                   }
             }
-            if(!candidateNotes.empty())
+            if (!candidateNotes.empty())
             {
-                  tickNoteMapTransposed[tickNoteItem.first]=candidateNotes;
+                  tickNoteMapTransposed[tickNoteItem.first] = candidateNotes;
             }
       }
 }
@@ -159,5 +173,4 @@ void NoteListProcessor::generateBin(vector<char> &mem)
 
       cout << "Mem size: " << mem.size() << "b" << endl;
 }
-
 }

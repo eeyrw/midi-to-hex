@@ -21,7 +21,6 @@ typedef unsigned char uchar;
 
 // user interface variables
 Options options;
-bool globalDebugFlag = false;
 
 // function declarations:
 void convertNoteMaptoRom(map<int, vector<int>> &noteMap, vector<char> &mem);
@@ -41,18 +40,28 @@ int main(int argc, char *argv[])
       map<int, vector<int>> noteMap;
       checkOptions(options, argc, argv);
       vector<char> mem;
-      NoteListProcessor np=NoteListProcessor(options.getArg(1));
+      NoteListProcessor np = NoteListProcessor(options.getString("midi"));
+      if (options.getBoolean("transpose"))
+      {
+            int t = options.getInteger("transpose");
+            np.setExternTranspose(t);
+      }
       np.analyzeNoteMap();
-      np.printAnalyzeResult();
       np.transposeTickNoteMap();
       np.generateBin(mem);
       convertMemToHexFile(mem, "./hex-file/mg.hex", "target.hex");
 
-      char argString[][32] = {"micronucleus_mainaaa", "-r", "--fast-mode", "target.hex"};
-      char *micronucleus_argv[4];
-      for (int i = 0; i < 4; i++)
-            micronucleus_argv[i] = argString[i];
-      return micronucleus_main(4, micronucleus_argv);
+      if (options.getBoolean("download"))
+      {
+            cout << "Download target.hex to mcu through micronucleus bootloader." << endl;
+            cout << "Please ensure the mcu device is under bootloader mode (usally by re-pluging usb or reseting mcu)." << endl;
+            char argString[][32] = {"micronucleus_main", "-r", "--fast-mode", "target.hex"};
+            char *micronucleus_argv[4];
+            for (int i = 0; i < 4; i++)
+                  micronucleus_argv[i] = argString[i];
+            return micronucleus_main(4, micronucleus_argv);
+      }
+
       return 0;
 }
 
@@ -89,18 +98,15 @@ void convertMemToHexFile(vector<char> &mem, string originalHexFilePath, string t
       intelHexOutput << ihMusicBoxFirmRom;
 }
 
-
-
-
-
 void checkOptions(Options &opts, int argc, char *argv[])
 {
       opts.define("author=b", "author of program");
       opts.define("version=b", "compilation info");
       opts.define("example=b", "example usages");
       opts.define("h|help=b", "short description");
-
-      opts.define("d|debug=b", "debug mode to find errors in input file");
+      opts.define("t|transpose=i", "Specify the transpose (half note). The suggestion transpose will be applied if without specified transpose.");
+      opts.define("d|download=b", "Download the hex file to mcu through micronucleus directly.");
+      opts.define("m|midi=s", "Midi file path.");
 
       opts.process(argc, argv);
 
@@ -126,16 +132,11 @@ void checkOptions(Options &opts, int argc, char *argv[])
             example();
             exit(0);
       }
-      else if (opts.getBoolean("debug"))
-      {
-            globalDebugFlag = true;
-      }
-
-      if (opts.getArgCount() != 1)
-      {
-            usage(opts.getCommand().data());
-            exit(1);
-      }
+      // if (opts.getArgCount() != 1)
+      // {
+      //       usage(opts.getCommand().data());
+      //       exit(1);
+      // }
 }
 
 //////////////////////////////
