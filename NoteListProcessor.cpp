@@ -76,10 +76,18 @@ void NoteListProcessor::printAnalyzeResult()
       TablePrinter tp(&std::cout);
       tp.AddColumn("Note pitch", 12);
       tp.AddColumn("Occur times", 12);
+      tp.AddColumn("Is in range", 12);
       tp.PrintHeader();
       for (auto &noteNumMapItem : noteOccurTimesMap)
       {
             tp << pitchName[noteNumMapItem.first] << noteNumMapItem.second;
+            int offestToVailidHighestPitch = validHighestPitch - noteNumMapItem.first;
+            int offestToVailidLowestPitch = validLowestPitch - noteNumMapItem.first;
+
+            if (offestToVailidHighestPitch >= 0 && offestToVailidLowestPitch <= 0)
+                  tp << "YES";
+            else
+                  tp << "NO";
       }
       tp.PrintFooter();
       cout << "Highest pitch: " << pitchName[highestPitch] << endl
