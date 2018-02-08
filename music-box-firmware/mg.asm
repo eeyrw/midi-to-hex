@@ -93,31 +93,26 @@ start_play:
 	ldiw	X,TickCounter
 	st X+,_0
 	st X,_0
-	
-	sei
-
 pl_next:
-
-	;lpmw	B, Z+
-	mov T2L,_0
-	mov T2H,_0
+	mov T4L,_0
+	mov T4H,_0
 accumlate_var_len_tick:
 	lpm AL,Z+
-	add T2L,AL
-	adc T2H,_0
+	add T4L,AL
+	adc T4H,_0
 	cpi AL,255
 	breq accumlate_var_len_tick
-	ldiw	X,TickCounter
+	ldiw X,TickCounter
 	ld BL,X+
 	ld BH,X
 
-	add BL,T2L
-	adc BH,T2H
-ldiw	X,TickCounter
+	add BL,T4L
+	adc BH,T4H
+	ldiw X,TickCounter
 	st X+,BL
 	st X,BH
-
-	 rcall	drv_decay
+	sei
+	rcall	drv_decay
 	cli
 	cpw	_Tmr, B
 	sei
@@ -128,7 +123,7 @@ pl_note:
 	cpi	CL, EoS
 	breq	stop_play
 	mov	AL, CL
-	 rcall	note_on
+	rcall	note_on
 	andi	CL, en
 	breq	pl_note
 	rjmp	pl_next
@@ -396,7 +391,7 @@ wt_loop: ; Sustain area
 	.db 0, -5, -10, -15, -21, -26, -31, -36, -41, -46, -50, -55, -59, -64, -68, -72
 	.db -76, -80, -83, -87, -90, -93, -95, -98, -100, -102, -104, -106, -107, -108, -109, -110
 	.db -110, -111, -110, -110, -109, -109, -107, -106, -104, -102, -100, -98, -95, -92, -89, -85
-	.db -82, -78, -74, -69, -65, -60, -55, -50, -45, -39, -34, -28, -23, -17, -11, -5,0
+	.db -82, -78, -74, -69, -65, -60, -55, -50, -45, -39, -34, -28, -23, -17, -11, -5
 wt_end:
 
 ;--------------------------------------------------------------------;
@@ -404,5 +399,6 @@ wt_end:
 ;--------------------------------------------------------------------;
 .org 1024
 score:
+;.db 0,26|128,128,1,2,3,4,5|128,255,255,0,18|128,125,1,4,58|128,2,255
 ;.include "melody.asm"
 

@@ -184,17 +184,16 @@ void NoteListProcessor::generateBin(vector<char> &mem)
 void NoteListProcessor::generateDeltaBin(vector<char> &mem)
 {
       auto noteMapItem = tickNoteMapTransposed.begin();
-      int lastTick=0;
+      int lastTick = 0;
       for (; noteMapItem != std::prev(tickNoteMapTransposed.end()); ++noteMapItem)
       {
-            int deltaTick=noteMapItem->first-lastTick;
-            lastTick=noteMapItem->first;
+            int deltaTick = noteMapItem->first - lastTick;
+            lastTick = noteMapItem->first;
             do
             {
-                mem.push_back(deltaTick<255?deltaTick:255);  
-                deltaTick-=255;        
-            }while(deltaTick>=0);
-
+                  mem.push_back(deltaTick < 255 ? deltaTick : 255);
+                  deltaTick -= 255;
+            } while (deltaTick >= 0);
 
             auto noteItem = noteMapItem->second.begin();
             for (; noteItem != noteMapItem->second.end(); ++noteItem)
@@ -202,8 +201,13 @@ void NoteListProcessor::generateDeltaBin(vector<char> &mem)
             mem.back() |= 128;
       }
 
-      mem.push_back(static_cast<char>(noteMapItem->first));
-      mem.push_back(static_cast<char>(noteMapItem->first >> 8));
+      int deltaTick = noteMapItem->first - lastTick;
+      lastTick = noteMapItem->first;
+      do
+      {
+            mem.push_back(deltaTick < 255 ? deltaTick : 255);
+            deltaTick -= 255;
+      } while (deltaTick >= 0);
       mem.push_back(0xFF);
 
       cout << "Mem size: " << mem.size() << "b" << endl;
