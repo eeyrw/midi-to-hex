@@ -47,6 +47,7 @@ public:
   void analyzeNoteMap();
   void transposeTickNoteMap();
   void generateBin(vector<char> &mem);
+  void generateDeltaBin(vector<char> &mem);
 
 private:
   map<int, vector<int>> tickNoteMap;

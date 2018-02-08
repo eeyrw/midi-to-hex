@@ -33,6 +33,8 @@ Notes:	.byte	(2+3+1+1+1+1)*N_NOTE
 .equ	ns_lp = 8	;Level Pointer
 .equ	nsize = 9	;size of this structure
 
+TickCounter: .byte 2 ;
+
 
 ;----------------------------------------------------------;
 ; Program Code
@@ -87,10 +89,32 @@ start_play:
 	cli
 	clrw	_Tmr
 	clr	_TmrS
+
+	ldiw	X,TickCounter
+	st X+,_0
+	st X,_0
+	
 	sei
 
 pl_next:
-	lpmw	B, Z+
+
+	;lpmw	B, Z+
+accumlate_var_len_tick:
+	lpm AL,Z+
+	add T2L,AL
+	adc T2H,_0
+	cpi AL,255
+	breq accumlate_var_len_tick
+	ldiw	X,TickCounter
+	ld BL,X+
+	ld BH,X
+
+	add BL,T2L
+	adc BH,T2H
+ldiw	X,TickCounter
+	st X+,BL
+	st X,BH
+
 	 rcall	drv_decay
 	cli
 	cpw	_Tmr, B

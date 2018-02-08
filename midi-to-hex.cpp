@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
       }
       np.analyzeNoteMap();
       np.transposeTickNoteMap();
-      np.generateBin(mem);
+      np.generateDeltaBin(mem);
       convertMemToHexFile(mem, "./hex-file/mg.hex", "target.hex");
 
       if (options.getBoolean("download"))
@@ -146,6 +146,7 @@ void checkOptions(Options &opts, int argc, char *argv[])
 
 void example(void)
 {
+      
 }
 
 //////////////////////////////
