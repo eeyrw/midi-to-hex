@@ -93,7 +93,9 @@ start_play:
 	ldiw	X,TickCounter
 	st X+,_0
 	st X,_0
+	sei
 pl_next:
+	cli
 	mov T4L,_0
 	mov T4H,_0
 accumlate_var_len_tick:
