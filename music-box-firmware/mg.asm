@@ -99,6 +99,8 @@ start_play:
 pl_next:
 
 	;lpmw	B, Z+
+	ldi T2L,0
+	ldi T2H,0
 accumlate_var_len_tick:
 	lpm AL,Z+
 	add T2L,AL
