@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
             string dev = options.getString("device");
             if (dev == "t167")
             {
-                  string defaultHexFile = "./hex-file/mg_167.hex";
+                  defaultHexFile = "./hex-file/mg_167.hex";
                   cout << "Generate hex file for ATTINY 167." << endl;
             }
       }
