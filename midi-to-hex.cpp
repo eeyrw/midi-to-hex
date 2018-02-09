@@ -49,7 +49,17 @@ int main(int argc, char *argv[])
       np.analyzeNoteMap();
       np.transposeTickNoteMap();
       np.generateDeltaBin(mem);
-      convertMemToHexFile(mem, "./hex-file/mg.hex", "target.hex");
+      string defaultHexFile = "./hex-file/mg.hex";
+      if (options.getBoolean("device"))
+      {
+            string dev = options.getString("device");
+            if (dev == "t167")
+            {
+                  string defaultHexFile = "./hex-file/mg_167.hex";
+                  cout << "Generate hex file for ATTINY 167." << endl;
+            }
+      }
+      convertMemToHexFile(mem, defaultHexFile, "target.hex");
 
       if (options.getBoolean("download"))
       {
@@ -107,6 +117,7 @@ void checkOptions(Options &opts, int argc, char *argv[])
       opts.define("t|transpose=i", "Specify the transpose (half note). The suggestion transpose will be applied if without specified transpose.");
       opts.define("d|download=b", "Download the hex file to mcu through micronucleus directly.");
       opts.define("m|midi=s", "Midi file path.");
+      opts.define("device=s", "Target mcu.");
 
       opts.process(argc, argv);
 
@@ -146,7 +157,6 @@ void checkOptions(Options &opts, int argc, char *argv[])
 
 void example(void)
 {
-      
 }
 
 //////////////////////////////
