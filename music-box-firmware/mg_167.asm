@@ -10,6 +10,7 @@
 .def	_Sreg	= r14
 .def	_Zreg	= r12
 .def	_Yreg	= r10
+.def	_TmrE	= r6
 .def	_TmrH	= r9
 .def	_TmrL	= r8
 .def	_TmrS	= r7
@@ -33,7 +34,7 @@ Notes:	.byte	(2+3+1+1+1+1)*N_NOTE
 .equ	ns_lp = 8	;Level Pointer
 .equ	nsize = 9	;size of this structure
 
-TickCounter: .byte 2 ;
+TickCounter: .byte 3 ;
 
 
 ;----------------------------------------------------------;
@@ -103,9 +104,11 @@ start_play:
 	ldiw	Z, score*2
 	cli
 	clrw	_Tmr
+	clr	_TmrE
 	clr	_TmrS
 
 	ldiw	X,TickCounter
+	st X+,_0
 	st X+,_0
 	st X,_0
 	sei
@@ -121,19 +124,23 @@ accumlate_var_len_tick:
 	breq accumlate_var_len_tick
 	ldiw X,TickCounter
 	ld BL,X+
-	ld BH,X
+	ld BH,X+
+	ld DL,X
 
 	add BL,T4L
 	adc BH,T4H
+	adc DL,_0
 	ldiw X,TickCounter
 	st X+,BL
-	st X,BH
+	st X+,BH
+	st X,DL
 	sei
 	rcall	drv_decay
 	cli
 	cpw	_Tmr, B
+	cpc	_TmrE,DL
 	sei
-	brcs	PC-5
+	brcs	PC-6
 
 pl_note:
 	lpm	CL, Z+
@@ -284,7 +291,8 @@ tone_lp:
 	sec				;Increment sequense timer
 	adc	_TmrS, _0		;
 	adc	_TmrL, _0		;
-	adc	_TmrH, _0		;/
+	adc	_TmrH, _0		;
+	adc _TmrE, _0
 
 	movw	ZL, _Zreg		;Restore regs...
 	movw	YL, _Yreg		;
