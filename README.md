@@ -77,11 +77,15 @@ At the moment you can plug in your music-box to PC and something will happen lik
     >> Micronucleus done. Thank you!
 Then the firmware of music-box has been updated with your midi file.
 There are some parameters that should be explain here:
+
 -m or --midi : Specify midi file. This parameter is mandatory.
+
 -t or --transpose : Specify a wanted transpose in half pitch. If you do not specify, the suggestion transpose calculated by midi-to-hex will be applied.
+
 -d or --download: With this parameter means download hex file to music-box is required. 
+
 --device : Specify the mcu device used in your music-box. It only support t85 and t167 by now. The t85 will be default if without this parameter. 
-Thanks
+
 # Great Thanks to:
 ELM-Chan : http://elm-chan.org/works/mxb/report.html
 
@@ -97,5 +101,5 @@ Jenna Fox & Tim : https://github.com/micronucleus/micronucleus
 Craig Stuart Sapp : https://github.com/craigsapp/midifile
 > Who powered midi-to-hex with ability to access midi file and he is so warmhearted and answer my question by a vivid example : )
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTkyMTQ1OTQyOV19
+eyJoaXN0b3J5IjpbMjA2MjU4MDE5OF19
 -->
