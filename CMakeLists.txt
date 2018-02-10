@@ -4,17 +4,13 @@ set(CMAKE_C_FLAGS "-Os -std=c99")
 set(CMAKE_CXX_FLAGS "-Os -std=c++11")
 
 if(WIN32)
-set(LIBUSB-1.0-PATH F:/mingw64/x86_64-w64-mingw32/lib/libusb-1.0.a)
 ADD_DEFINITIONS(-D WIN)
 endif()
 if(APPLE)
-set(LIBUSB-1.0-PATH /usr/local/Cellar/libusb/1.0.20/lib/libusb-1.0.dylib)
 INCLUDE_DIRECTORIES(/usr/local/Cellar/libusb/1.0.20/include)
 ADD_DEFINITIONS(-D MAC_OS)
 endif()
 if(UNIX AND NOT APPLE)
-set(LIBUSB-1.0-PATH /usr/lib/arm-linux-gnueabihf/libusb-1.0.so)
-
 ADD_DEFINITIONS(-D LINUX)
 endif()
 
@@ -31,5 +27,5 @@ INCLUDE_DIRECTORIES(./micronucleus_tool)
 INCLUDE_DIRECTORIES(./bprinter/include)
 
 # add the executable
-add_executable(midi-to-hex midi-to-hex.cpp ${DIR_MIDI_LIB_SRCS} ${DIR_HEX_LIB_SRCS} ${DIR_MICRONUCLEUS_SRCS} ${DIR_BPRINTER_LIB_SRCS} ${DIR_MICRONUCLEUS_LIB_SRCS})
-target_link_libraries(midi-to-hex ${LIBUSB-1.0-PATH})
+add_executable(midi-to-hex midi-to-hex.cpp NoteListProcessor.cpp ${DIR_MIDI_LIB_SRCS} ${DIR_HEX_LIB_SRCS} ${DIR_MICRONUCLEUS_SRCS} ${DIR_BPRINTER_LIB_SRCS} ${DIR_MICRONUCLEUS_LIB_SRCS})
+target_link_libraries(midi-to-hex -lusb-1.0)
