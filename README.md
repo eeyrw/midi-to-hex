@@ -89,7 +89,7 @@ There are some parameters that should be explain here:
 # Great Thanks to:
 ELM-Chan : http://elm-chan.org/works/mxb/report.html
 
-> Who wrote the music-box firmware originally.
+> Who put forward the original idea about firmware and hardware of music box.
 
 Stuart Cording : https://github.com/codinghead/Intel-HEX-Class
 
@@ -101,5 +101,5 @@ Jenna Fox & Tim : https://github.com/micronucleus/micronucleus
 Craig Stuart Sapp : https://github.com/craigsapp/midifile
 > Who powered midi-to-hex with ability to access midi file and he is so warmhearted and answer my question by a vivid example : )
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjA2MjU4MDE5OF19
+eyJoaXN0b3J5IjpbLTk0OTMyODU3OV19
 -->
