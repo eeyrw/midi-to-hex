@@ -1,7 +1,7 @@
 
 # Build midi-to-hex
 
-The midi-to-hex is written in C++ and uses cmake as build tool. The bootloader software inside requires libusb-**1.0**.  Following examples explain the ~~detail~~ building steps in different O.S.
+The midi-to-hex is written with C++ and uses cmake as build tool. The bootloader software inside requires libusb-**1.0**.  Following examples explain the ~~detail~~ building steps in different O.S.
 
 ## Windows
 
@@ -14,7 +14,7 @@ The midi-to-hex is written in C++ and uses cmake as build tool. The bootloader s
 3. If everything goes well... You can start to build and input  `make -j5` and press Enter. You may see the ouput from cmake such as `[100%] Built target midi-to-hex` (which means that you have built the midi-to-hex successfully) or a lot of error info... 
  ## Linux
  1. Install libusb-1.0  and cmake by apt-get ( maybe other tool )...
- 2. Open a terminal emulator and locate it at the root directory of project and input `cmake .`  ( I think a Linux user certainly has idea that what is the CUTE **DOT**. ) and press Enter.
+ 2. Open a terminal emulator and locate it at the root directory of project and input `cmake .`  ( I think a Linux user certainly knows what is the CUTE **DOT**. ) and press Enter.
  3. If everything goes well... You can start to build and input  `make -j5` and press Enter. You may see the ouput from cmake such as `[100%] Built target midi-to-hex` (which means that you have built the midi-to-hex successfully) or a lot of error info... 
 
 # Use midi-to-hex
@@ -101,5 +101,5 @@ Jenna Fox & Tim : https://github.com/micronucleus/micronucleus
 Craig Stuart Sapp : https://github.com/craigsapp/midifile
 > Who powered midi-to-hex with ability to access midi file and he is so warmhearted and answer my question by a vivid example : )
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTk0OTMyODU3OV19
+eyJoaXN0b3J5IjpbLTgyODgzNDcyNl19
 -->
