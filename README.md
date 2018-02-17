@@ -52,7 +52,7 @@ The midi-to-hex is a command line tool. Here is an example of usage:
     Please ensure the mcu device is under bootloader mode (usally by re-pluging usb or reseting mcu).
     > Please plug in the device ...
     > Press CTRL+C to terminate the program.
-At the moment you can plug in your music-box to PC and something will happen like this:
+You can plug in your music-box to PC at the moment and something will happen like this:
 
     > Device is found!
     waiting: 20% complete
@@ -101,5 +101,5 @@ Jenna Fox & Tim : https://github.com/micronucleus/micronucleus
 Craig Stuart Sapp : https://github.com/craigsapp/midifile
 > Who powered midi-to-hex with ability to access midi file and he is so warmhearted and answer my question by a vivid example : )
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMzk2MTM4NzQ1XX0=
+eyJoaXN0b3J5IjpbLTIxMTgwMDEwMzldfQ==
 -->
