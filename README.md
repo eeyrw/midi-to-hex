@@ -6,15 +6,15 @@ The midi-to-hex is written with C++ and uses cmake as build tool. The bootloader
 ## Windows
 
  1. Install mingw**64**, libusb-**1.0** and cmake (Do it by yourself...) . 
- 2. Open a shell ( I use powershell ) and locate it at the root directory of project and input `cmake -G "MinGW Makefiles" .`  (DO NOT MISS THE CUTE **DOT** IN THE END) and press Enter.
+ 2. Open a shell ( I use powershell ) and locate it at the root directory of project and input `cmake -G "MinGW Makefiles" .`  (DO NOT MISS THE **DOT** IN THE END) and press Enter.
  3. If everything goes well... You can start to build and input  `mingw32-make.exe -j5` and press Enter. You may see the ouput from cmake such as `[100%] Built target midi-to-hex` (which means that you have built the midi-to-hex successfully) or a lot of error info... 
 ## Mac
 1. I installed Xcode and brew to get Apple Clang and libusb-1.0 and cmake.
-2. Open a terminal emulator and locate it at the root directory of project and input `cmake .`  (DO NOT MISS THE CUTE **DOT** IN THE END) and press Enter.
+2. Open a terminal emulator and locate it at the root directory of project and input `cmake .`  (DO NOT MISS THE **DOT** IN THE END) and press Enter.
 3. If everything goes well... You can start to build and input  `make -j5` and press Enter. You may see the ouput from cmake such as `[100%] Built target midi-to-hex` (which means that you have built the midi-to-hex successfully) or a lot of error info... 
  ## Linux
  1. Install libusb-1.0  and cmake by apt-get ( maybe other tool )...
- 2. Open a terminal emulator and locate it at the root directory of project and input `cmake .`  ( I think a Linux user certainly knows what is the CUTE **DOT**. ) and press Enter.
+ 2. Open a terminal emulator and locate it at the root directory of project and input `cmake .`  ( A Linux user definitely never miss the  **DOT**. ) and press Enter.
  3. If everything goes well... You can start to build and input  `make -j5` and press Enter. You may see the ouput from cmake such as `[100%] Built target midi-to-hex` (which means that you have built the midi-to-hex successfully) or a lot of error info... 
 
 # Use midi-to-hex
@@ -101,5 +101,5 @@ Jenna Fox & Tim : https://github.com/micronucleus/micronucleus
 Craig Stuart Sapp : https://github.com/craigsapp/midifile
 > Who powered midi-to-hex with ability to access midi file and he is so warmhearted and answer my question by a vivid example : )
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTgyODgzNDcyNl19
+eyJoaXN0b3J5IjpbLTEwNzAxNzQ1MjJdfQ==
 -->
