@@ -1,6 +1,6 @@
 # waveform to ASM converter
 
-	if(!open(RHA, "p1.wav")) # source file
+	if(!open(RHA, $ARGV[0])) # source file
 		{ die "File could not opend." }
 	binmode RHA;
 

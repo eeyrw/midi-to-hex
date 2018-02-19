@@ -92,7 +92,9 @@ void convertMemToHexFile(vector<char> &mem, string originalHexFilePath, string t
       }
       /* Decode file                                                            */
       intelHexInput >> ihMusicBoxFirmRom;
-      unsigned long addr = 1024 * 2;
+      ihMusicBoxFirmRom.end();
+      unsigned long addr = ihMusicBoxFirmRom.currentAddress();
+      cout<<"The score data located at: 0x"<<setfill('0') << uppercase << hex << addr <<endl;
       for (auto &byte : mem)
       {
             ihMusicBoxFirmRom.overwriteData(byte, addr++);
