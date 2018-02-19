@@ -42,3 +42,4 @@ compile_commands.json
 CTestTestfile.cmake
 midi-to-hex
 target.hex
+.DS_Store
