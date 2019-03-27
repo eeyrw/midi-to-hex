@@ -57,7 +57,11 @@ int main(int argc, char *argv[])
             {
                   defaultHexFile = "./hex-file/mg_167.hex";
                   cout << "Generate hex file for ATTINY 167." << endl;
-            }
+            }else if (dev == "m328p")
+			{
+                  defaultHexFile = "./hex-file/mg_m328p.hex";
+                  cout << "Generate hex file for Atmega328p." << endl;				
+			}
       }
       convertMemToHexFile(mem, defaultHexFile, "target.hex");
 
