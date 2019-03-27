@@ -1,6 +1,6 @@
 ;----------------------------------------------------------;
 ; Melody Generator  (C)ChaN, 2005
-
+;avrdude -C/usr/share/arduino/hardware/tools/avrdude.conf -v -v -v -v -patmega328p -carduino -P/dev/ttyUSB0 -b57600 -D -Uflash:xxx.hex:i 
 
 .include "m328pdef.inc"	;This is included in "Atmel AVR Studio"
 .include "avr.inc"
@@ -90,22 +90,15 @@ reset:
 	outi	PORTB, 0b001101		;Initalize Port B
 	outi	DDRB,  0b000111		;/
 
-	;outi	PLLCSR, 0b00000110	;Initialize TC1 in 250 kHz fast PWM mode.
-	;outi	TCCR1,  0b01100001	;Connect TC1 to OC1A
-	;outi	GTCCR,  0b01100000	;Connect TC1 to OC1B
-	;COM1A1 COM1A0 COM1B1 COM1B0 – – WGM11 WGM10
 	ldi AL,0b10100001
 	sts TCCR1A,AL
-	;ICNC1 ICES1 – WGM13 WGM12 CS12 CS11 CS10
+	;ICNC1 ICES1 – WGM13 WGM12 CS12 CS11 CS10 ; Fast PWM pclk/1
 	ldi AL,0b00001001
 	sts TCCR1B,AL
-	;OC1BX OC1BW OC1BV OC1BU OC1AX OC1AW OC1AV OC1AU
-	ldi AL,0b00010001
-	sts TCCR1D,AL	
 
-	outi	OCR0A, 62		;Initalize TC0 in 32 kHz interval timer.
+	outi	OCR0A, 31		;Initalize TC0 in 32 kHz interval timer.
 	outi	TCCR0A, 0b00000010
-	outi	TCCR0B, 0b00000010
+	outi	TCCR0B, 0b00000010 ;pclk/8
 	ldi AL,(1<<OCIE0A)
 	sts	TIMSK0, AL
 
@@ -285,7 +278,7 @@ tone_lp:
 	std	Y+ns_rptr, EH		;Save wave table ptr
 	stdw	Y+ns_rptr+1, Z		;/
 	ldd	EH, Y+ns_lvl		;Apply envelope curve
-	MULT				;/
+	MULSU EL,EH				;/ Using hardware multiplier
 	addw	T2, T0			;Add the sample to accumlator
 	adiw	YL, nsize			;Next note
 	cpi	YL, low(Notes+nsize*N_NOTE);
