@@ -2,7 +2,7 @@
 ; Melody Generator  (C)ChaN, 2005
 ;avrdude -C/usr/share/arduino/hardware/tools/avrdude.conf -v -v -v -v -patmega328p -carduino -P/dev/ttyUSB0 -b57600 -D -Uflash:xxx.hex:i 
 
-.include "m328pdef.inc"	;This is included in "Atmel AVR Studio"
+.include "m328Pdef.inc"	;This is included in "Atmel AVR Studio"
 .include "avr.inc"
 .include "mg.inc"
 
@@ -84,6 +84,12 @@ reset:
 	st	X+, _0			;
 	dec	AL			;
 	brne	PC-2			;/
+
+
+	ldi	r16, low(RAMEND)
+	out	SPL, r16
+	ldi	r16, high(RAMEND)
+	out	SPH, r16	
 
 ;	outi	OSCCAL, 172		;Adjust OSCCAL if needed.
 
@@ -278,7 +284,10 @@ tone_lp:
 	std	Y+ns_rptr, EH		;Save wave table ptr
 	stdw	Y+ns_rptr+1, Z		;/
 	ldd	EH, Y+ns_lvl		;Apply envelope curve
-	MULSU EL,EH				;/ Using hardware multiplier
+	pushw A					;Copy register E to A because MULSU can only use r16 - r23. Register A is AL:r16,AH:r17
+	movew A,E 
+	MULSU AL,AH				;/ Using hardware multiplier
+	popw A
 	addw	T2, T0			;Add the sample to accumlator
 	adiw	YL, nsize			;Next note
 	cpi	YL, low(Notes+nsize*N_NOTE);
