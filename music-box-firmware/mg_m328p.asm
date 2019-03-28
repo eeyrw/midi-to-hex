@@ -1,6 +1,5 @@
 ;----------------------------------------------------------;
 ; Melody Generator  (C)ChaN, 2005
-;avrdude -C/usr/share/arduino/hardware/tools/avrdude.conf -v -v -v -v -patmega328p -carduino -P/dev/ttyUSB0 -b57600 -D -Uflash:xxx.hex:i 
 
 .include "m328Pdef.inc"	;This is included in "Atmel AVR Studio"
 .include "avr.inc"
@@ -102,7 +101,7 @@ reset:
 	ldi AL,0b00001001
 	sts TCCR1B,AL
 
-	outi	OCR0A, 31		;Initalize TC0 in 32 kHz interval timer.
+	outi	OCR0A, 62		;Initalize TC0 in 32 kHz interval timer ( pclk=16M )
 	outi	TCCR0A, 0b00000010
 	outi	TCCR0B, 0b00000010 ;pclk/8
 	ldi AL,(1<<OCIE0A)
