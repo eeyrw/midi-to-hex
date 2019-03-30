@@ -15,10 +15,12 @@
 .def	_TmrL	= r8
 .def	_TmrS	= r7
 
-.equ	N_NOTE	= 5
+.equ	N_NOTE	= 8
 
 ;#define VAR_EV_DELTA
 .equ	envelopeDelta	= 5
+#define USE_HARDWRARE_MUL
+#define USE_ANTOHER_PWM_MOD_METHOD
 
 
 ;----------------------------------------------------------;
@@ -265,7 +267,9 @@ isr_tc0_coma:
 	in	_Sreg, SREG		;Save regs...
 	movw	_Zreg, ZL		;
 	movw	_Yreg, YL		;/
-
+#ifdef USE_HARDWRARE_MUL	
+	pushw A
+#endif
 	ldiw	Y, Notes		;Process all notes
 	clrw	T2			;Clear accumlator
 tone_lp:
@@ -283,18 +287,27 @@ tone_lp:
 	std	Y+ns_rptr, EH		;Save wave table ptr
 	stdw	Y+ns_rptr+1, Z		;/
 	ldd	EH, Y+ns_lvl		;Apply envelope curve
-	pushw A					;Copy register E to A because MULSU can only use r16 - r23. Register A is AL:r16,AH:r17
-	movew A,E 
+#ifdef USE_HARDWRARE_MUL
+						;Copy register E to A because MULSU can only use r16 - r23. Register A is AL:r16,AH:r17
+	movw AH:AL,EH:EL 
 	MULSU AL,AH				;/ Using hardware multiplier
-	popw A
-	addw	T2, T0			;Add the sample to accumlator
+	add T2L,T0H
+	ldi EL,0
+	sbrc T0H,7
+	ldi EL,0xFF
+	adc T2H,EL
+
+#else
+	MULT	
+	addw	T2, T0			;Add the sample to accumlator	
+#endif
 	adiw	YL, nsize			;Next note
 	cpi	YL, low(Notes+nsize*N_NOTE);
 	brne	tone_lp			;/
 
 	;asrw	T2			;Divide it by 4
 	;asrw	T2			;/
-	ldiw	E, 253			;Clip it between -255 to 253
+	ldiw	E, 255			;Clip it between -255 to 253
 	cpw	T2, E			;
 	brlt	PC+2			;
 	movw	T2L, EL			;
@@ -302,18 +315,34 @@ tone_lp:
 	cpw	T2, E			;
 	brge	PC+2			;
 	movw	T2L, EL			;/
-	asrw	T2			;Set it to PWM modulator
-	ror	T2H			;
-	mov	EL, T2L			;
-	subi	EL, 0x80		;
-	mov	EH, EL			;
-	com	EH			;
-	sbrc	T2H, 7			;
-	inc	EL			;
+#ifdef USE_ANTOHER_PWM_MOD_METHOD
+	sbrc T2H,7
+	jmp NEG_NUM
+	sts OCR1AL,_0
+	sts OCR1BL,T2L
+	jmp NEG_NUM_END
+NEG_NUM:
+	com T2L
+	com T2H
+	sec
+	adc T2L,_0
+	adc T2H,_0
+	sts OCR1AL,T2L
+	sts OCR1BL,_0
+NEG_NUM_END:
+#else
+	asrw	T2			; Set it to PWM modulator ： 把16位的T2带符号位右移一位，除以2，最低位移到Carrier 
+	ror	T2H				; 把T2H的高位右移，Carrier进到T2H的第七位
+	mov	EL, T2L			; 复制T2L到EL
+	subi	EL, 0x80	; EL=EL-0x80
+	mov	EH, EL			; 
+	com	EH				; EH取反
+	sbrc	T2H, 7		; 如果T2H的第七位是0就跳过下面一行
+	inc	EL				; EL++
 	sts OCR1AL,EL
 	sts OCR1BL,EH
-	;out	OCR1AL, EL		;
-	;out	OCR1BL, EH		;/
+#endif
+
 	sec				;Increment sequense timer
 	adc	_TmrS, _0		;
 	adc	_TmrL, _0		;
@@ -323,6 +352,9 @@ tone_lp:
 	movw	ZL, _Zreg		;Restore regs...
 	movw	YL, _Yreg		;
 	out	SREG, _Sreg		;/
+#ifdef USE_HARDWRARE_MUL
+	popw A
+#endif
 	reti
 
 tbl_ev_dly_offest: ;  A     B     H     C    Cis    D    Dis    E     F    Fis    G    Gis 
