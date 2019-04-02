@@ -25,6 +25,7 @@ Options options;
 // function declarations:
 void convertNoteMaptoRom(map<int, vector<int>> &noteMap, vector<char> &mem);
 void convertMemToHexFile(vector<char> &mem, string originalHexFilePath, string targetHexFilePath);
+void convertMemToSourceFile(vector<char> &mem, string targetSourceFilePath);
 void checkOptions(Options &opts, int argc, char **argv);
 void example(void);
 void usage(const char *command);
@@ -82,22 +83,24 @@ int main(int argc, char *argv[])
 
 void convertMemToSourceFile(vector<char> &mem, string targetSourceFilePath)
 {
-      std::ofstream targetSourceFile;
-      targetSourceFile.open(targetSourceFilePath);
-      targetSourceFile<<"uint8_t Score[]={\n";
+      FILE* targetSourceFile;
+      targetSourceFile=fopen(targetSourceFilePath.c_str(),"w");
+      fprintf(targetSourceFile,"const unsigned char Score[]={\n");
+      fprintf(targetSourceFile,"const unsigned char Score[]={\n");
       int lineCounter=0;
       for(auto b:mem)
       {
-            targetSourceFile<<static_cast<unsigned char>(b)<<",";
+            fprintf(targetSourceFile,"0x%02x,",(unsigned char)b);
             if(lineCounter>16)
             {
-                  targetSourceFile<<"\n";
+                  fprintf(targetSourceFile,"\n");
                   lineCounter=0;
             }
+            lineCounter++;
             
       }
-      targetSourceFile<<"};\n";
-      targetSourceFile.close()
+      fprintf(targetSourceFile,"};\n");
+      fclose(targetSourceFile);
 }
 
 void convertMemToHexFile(vector<char> &mem, string originalHexFilePath, string targetHexFilePath)
