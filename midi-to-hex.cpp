@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
 			}
       }
       convertMemToHexFile(mem, defaultHexFile, "target.hex");
+      convertMemToSourceFile(mem,"score.c");
 
       if (options.getBoolean("download"))
       {
@@ -77,6 +78,26 @@ int main(int argc, char *argv[])
       }
 
       return 0;
+}
+
+void convertMemToSourceFile(vector<char> &mem, string targetSourceFilePath)
+{
+      std::ofstream targetSourceFile;
+      targetSourceFile.open(targetSourceFilePath);
+      targetSourceFile<<"uint8_t Score[]={\n";
+      int lineCounter=0;
+      for(auto b:mem)
+      {
+            targetSourceFile<<static_cast<unsigned char>(b)<<",";
+            if(lineCounter>16)
+            {
+                  targetSourceFile<<"\n";
+                  lineCounter=0;
+            }
+            
+      }
+      targetSourceFile<<"};\n";
+      targetSourceFile.close()
 }
 
 void convertMemToHexFile(vector<char> &mem, string originalHexFilePath, string targetHexFilePath)
