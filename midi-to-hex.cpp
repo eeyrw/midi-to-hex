@@ -86,7 +86,6 @@ void convertMemToSourceFile(vector<char> &mem, string targetSourceFilePath)
       FILE* targetSourceFile;
       targetSourceFile=fopen(targetSourceFilePath.c_str(),"w");
       fprintf(targetSourceFile,"const unsigned char Score[]={\n");
-      fprintf(targetSourceFile,"const unsigned char Score[]={\n");
       int lineCounter=0;
       for(auto b:mem)
       {
