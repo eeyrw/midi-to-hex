@@ -42,4 +42,5 @@ compile_commands.json
 CTestTestfile.cmake
 midi-to-hex
 target.hex
+score.c
 .DS_Store
