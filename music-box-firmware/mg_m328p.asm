@@ -18,9 +18,9 @@
 .equ	N_NOTE	= 8
 
 ;#define VAR_EV_DELTA
-.equ	envelopeDelta	= 5
+.equ	envelopeDelta	= 3
 #define USE_HARDWRARE_MUL
-#define USE_ANTOHER_PWM_MOD_METHOD
+;#define USE_ANTOHER_PWM_MOD_METHOD
 
 
 ;----------------------------------------------------------;
@@ -126,31 +126,34 @@ pl_next:
 	cli
 	mov T4L,_0
 	mov T4H,_0
-accumlate_var_len_tick:
-	lpm AL,Z+
-	add T4L,AL
-	adc T4H,_0
-	cpi AL,255
-	breq accumlate_var_len_tick
 	ldiw X,TickCounter
 	ld BL,X+
 	ld BH,X+
 	ld DL,X
-
-	add BL,T4L
-	adc BH,T4H
+accumlate_var_len_tick:
+	lpm AL,Z+
+	add BL,AL
+	adc BH,_0
 	adc DL,_0
+	cpi AL,255
+	breq accumlate_var_len_tick
+
+
 	ldiw X,TickCounter
 	st X+,BL
 	st X+,BH
 	st X,DL
 	sei
+cal_decay:	
 	rcall	drv_decay
 	cli
-	cpw	_Tmr, B
-	cpc	_TmrE,DL
+	;cpw	_Tmr, B
+	;cpc	_TmrE,DL
+	cp _TmrL,BL
+	cpc _TmrH,BH
+	cpc _TmrE,DL
 	sei
-	brcs	PC-6
+	brcs	cal_decay;PC-6
 
 pl_note:
 	lpm	CL, Z+
@@ -269,9 +272,11 @@ isr_tc0_coma:
 	movw	_Yreg, YL		;/
 #ifdef USE_HARDWRARE_MUL	
 	pushw A
+	push DL
 #endif
 	ldiw	Y, Notes		;Process all notes
 	clrw	T2			;Clear accumlator
+	clr	    DL
 tone_lp:
 	ldd	EH, Y+ns_rptr		;Load wave table pointer
 	lddw	Z, Y+ns_rptr+1		;/
@@ -291,7 +296,13 @@ tone_lp:
 						;Copy register E to A because MULSU can only use r16 - r23. Register A is AL:r16,AH:r17
 	movw AH:AL,EH:EL 
 	MULSU AL,AH				;/ Using hardware multiplier
-	add T2L,T0H
+	;add T2L,T0H
+	;ldi EL,0
+	;sbrc T0H,7
+	;ldi EL,0xFF
+	;adc T2H,EL
+	add DL,T0L
+	adc T2L,T0H
 	ldi EL,0
 	sbrc T0H,7
 	ldi EL,0xFF
@@ -305,7 +316,7 @@ tone_lp:
 	cpi	YL, low(Notes+nsize*N_NOTE);
 	brne	tone_lp			;/
 
-	;asrw	T2			;Divide it by 4
+	asrw	T2			;Divide it by 4
 	;asrw	T2			;/
 	ldiw	E, 255			;Clip it between -255 to 253
 	cpw	T2, E			;
@@ -343,8 +354,9 @@ NEG_NUM_END:
 	sts OCR1BL,EH
 #endif
 
-	sec				;Increment sequense timer
-	adc	_TmrS, _0		;
+	;sec				;Increment sequense timer
+	ldi EL,1
+	add	_TmrS, EL		;
 	adc	_TmrL, _0		;
 	adc	_TmrH, _0		;
 	adc _TmrE, _0
@@ -353,6 +365,7 @@ NEG_NUM_END:
 	movw	YL, _Yreg		;
 	out	SREG, _Sreg		;/
 #ifdef USE_HARDWRARE_MUL
+	pop DL
 	popw A
 #endif
 	reti
@@ -373,11 +386,13 @@ tbl_ev_dly_offest: ;  A     B     H     C    Cis    D    Dis    E     F    Fis  
 ;angular speed values.
 
 tbl_pitch: ;  A     B     H     C    Cis    D    Dis    E     F    Fis    G    Gis 
-	.dw  225,  239,  253,  268,  284,  301,  319,  338,  358,  379,  401,  425 ; 220Hz..
-	.dw  451,  477,  506,  536,  568,  601,  637,  675,  715,  758,  803,  851 ; 440Hz..
-	.dw  901,  955, 1011, 1072, 1135, 1203, 1274, 1350, 1430, 1515, 1606, 1701 ; 880Hz..
-	.dw 1802, 1909, 2023, 2143, 2271, 2406, 2549, 2700, 2861, 3031, 3211, 3402 ; 1760Hz..
-	.dw 3604, 3818, 4046, 4286, 4542, 4812, 5098, 5400			   ; 3520Hz
+.dw  107,  113,  120,  127,  135,  143,  151,  160,  170,  180
+.dw  191,  202,  214,  227,  240,  255,  270,  286,  303,  321
+.dw  340,  360,  382,  404,  428,  454,  481,  510,  540,  572
+.dw  606,  642,  680,  721,  764,  809,  857,  908,  962, 1020
+.dw 1080, 1144, 1212, 1285, 1361, 1442, 1528, 1619, 1715, 1817
+.dw 1925, 2040, 2161, 2289, 2425, 2570, 2723, 2885, 3056, 3238
+.dw 3430, 3634, 3851
 
 
 ;--------------------------------------------------------------------;
