@@ -17,11 +17,11 @@ TARGET = arduino
 PORT = /dev/cu.wchusbserial1410
 BAUD = 57600
 INCPATH = .
-SRCFILE = mg_m328p.asm
+SRCFILE = mg_lgt8f328p.asm
 
 $(SRCFILE).hex: $(SRCFILE)
 	avra -l $(SRCFILE).lst -I $(INCPATH) $(SRCFILE)
-	cp mg_m328p.hex ../hex-file/mg_m328p.hex
+	cp mg_lgt8f328p.hex ../hex-file/mg_m328p.hex
 
 flash: $(SRCFILE).hex
 	avrdude -c $(TARGET) -p $(MCU) -P $(PORT) -b $(BAUD) -U flash:w:$(SRCFILE).hex:i

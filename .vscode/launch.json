@@ -10,7 +10,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/midi-to-hex",
-            "args": [],
+            "args": ["-m","../midi-sample/twinkle.mid"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
