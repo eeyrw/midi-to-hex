@@ -14,6 +14,7 @@
 #include "NoteListProcessor.h"
 
 using namespace std;
+using namespace smf;
 using bprinter::TablePrinter;
 using noteListProcessor::NoteListProcessor;
 

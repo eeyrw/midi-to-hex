@@ -1,7 +1,6 @@
 #ifndef __NOTE_LIST_PROCESSOR__
 #define __NOTE_LIST_PROCESSOR__
 
-#include "Options.h"
 #include <ctype.h>
 #include <cstring>
 #include <cstdio>
@@ -14,6 +13,9 @@
 #include <map>
 #include "MidiFile.h"
 #include "bprinter/table_printer.h"
+
+using namespace std;
+using namespace smf;
 
 namespace noteListProcessor
 {

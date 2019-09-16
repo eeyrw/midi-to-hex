@@ -16,7 +16,7 @@ ADD_DEFINITIONS(-D LINUX)
 endif()
 
 
-aux_source_directory(./midifile/src-library DIR_MIDI_LIB_SRCS)
+aux_source_directory(./midifile/src DIR_MIDI_LIB_SRCS)
 aux_source_directory(./Intel-HEX-Class/intelhex_class DIR_HEX_LIB_SRCS)
 aux_source_directory(./micronucleus_tool DIR_MICRONUCLEUS_SRCS)
 aux_source_directory(./micronucleus_tool/library DIR_MICRONUCLEUS_LIB_SRCS)

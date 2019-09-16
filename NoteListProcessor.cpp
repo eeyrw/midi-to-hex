@@ -1,5 +1,7 @@
 #include "NoteListProcessor.h"
 
+using namespace smf;
+
 namespace noteListProcessor
 {
 using bprinter::TablePrinter;
