@@ -29,5 +29,5 @@ INCLUDE_DIRECTORIES(./micronucleus_tool)
 INCLUDE_DIRECTORIES(./bprinter/include)
 
 # add the executable
-add_executable(midi-to-hex midi-to-hex.cpp NoteListProcessor.cpp ${DIR_MIDI_LIB_SRCS} ${DIR_HEX_LIB_SRCS} ${DIR_MICRONUCLEUS_SRCS} ${DIR_BPRINTER_LIB_SRCS} ${DIR_MICRONUCLEUS_LIB_SRCS})
+add_executable(midi-to-hex midi-to-hex.cpp NoteListProcessor.cpp ByteStream.cpp ${DIR_MIDI_LIB_SRCS} ${DIR_HEX_LIB_SRCS} ${DIR_MICRONUCLEUS_SRCS} ${DIR_BPRINTER_LIB_SRCS} ${DIR_MICRONUCLEUS_LIB_SRCS})
 target_link_libraries(midi-to-hex -lusb-1.0)

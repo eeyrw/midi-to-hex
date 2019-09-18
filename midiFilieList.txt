@@ -1,0 +1,9 @@
+./midi-sample/Always-with-me-musicbox.mid
+./midi-sample/Bach_-_Arioso_from_Cantata_BWV_156.mid
+./midi-sample/Beethoven_-_Pathetique.mid
+./midi-sample/molihua.mid
+./midi-sample/mozart_k265.mid
+./midi-sample/Auld_Lang_Syne_MusicBox.mid
+./midi-sample/Katyusha.mid
+./midi-sample/Moon_River_Noted_MusicBox.mid
+./midi-sample/Moonlight_Sonata_Beethoven.mid

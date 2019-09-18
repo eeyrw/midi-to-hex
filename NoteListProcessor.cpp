@@ -122,7 +122,7 @@ void NoteListProcessor::analyzeNoteMap()
       if (offestToVailidHighestPitch >= 0 && offestToVailidLowestPitch <= 0)
             suggestTranpose = 0;
       else if (offestToVailidHighestPitch < 0)
-            suggestTranpose = offestToVailidHighestPitch; //keep the highest pitch by no means
+            suggestTranpose = offestToVailidHighestPitch; //keep the highest pitch by all means
       else if (offestToVailidLowestPitch >= 0)
       {
             if (abs(offestToVailidHighestPitch) >= abs(offestToVailidLowestPitch))
@@ -149,7 +149,7 @@ void NoteListProcessor::transposeTickNoteMap()
                   int transNote = note + tranpose;
                   if (transNote >= validLowestPitch && transNote <= validHighestPitch)
                   {
-                        candidateNotes.push_back(transNote - validLowestPitch);
+                        candidateNotes.push_back(transNote - offestToMidiPitch);
                   }
                   if (note == 128)
                   {

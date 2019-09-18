@@ -40,6 +40,7 @@ public:
   int validHighestPitch = 100;
   int validLowestPitch = 45;
   int suggestTranpose;
+  int offestToMidiPitch = 0;
   double midiDuration;
   map<int, int> noteOccurTimesMap;
 
