@@ -122,6 +122,7 @@ void generateScoreListMemAndScore(string midiFileListPath)
       scoreListMem.writeBytes(identifer.c_str(), 4);
       scoreListMem.writeUInt32(pathList.size());
       int scoreMemPointer = 0;
+      int headerOffest;
 
       std::ofstream logFileStream;
       logFileStream.open("ScoreListGen.log");
@@ -130,13 +131,16 @@ void generateScoreListMemAndScore(string midiFileListPath)
       {
             vector<char> mem;
             NoteListProcessor np = NoteListProcessor(midiFilePath, &logFileStream);
+            logFileStream<<"File: "<<midiFilePath<<'\n';
             np.analyzeNoteMap();
             np.transposeTickNoteMap();
             np.generateDeltaBin(mem);
             scoreListMem.writeUInt32(scoreMemPointer);
             scoreMemPointer += mem.size();
             std::move(mem.begin(), mem.end(), std::back_inserter(scoreMem));
+            logFileStream<<"\n\n";
       }
+      headerOffest=scoreListMem.size();
 
       scoreListMem.writeBytes(scoreMem.data(), scoreMem.size());
 
@@ -146,6 +150,10 @@ void generateScoreListMemAndScore(string midiFileListPath)
       std::ofstream ofile("scoreList.bin", std::ios::binary);
       ofile.write(scoreListMemVector.data(), scoreListMem.size());
 
+      logFileStream<<"\n\n\n=============================================\n";
+      logFileStream<<"Score Count: "<<pathList.size()<<'\n';
+      logFileStream<<"Total Mem Size (byte): "<<scoreListMem.size()+headerOffest<<'\n';
+      logFileStream<<"Score Data Mem Size (byte): "<<scoreListMem.size()<<'\n';
       logFileStream.close();
 }
 
