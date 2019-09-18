@@ -121,7 +121,7 @@ void generateScoreListMemAndScore(string midiFileListPath)
       string identifer = "SCRE";
       scoreListMem.writeBytes(identifer.c_str(), 4);
       scoreListMem.writeUInt32(pathList.size());
-      int scoreMemPointer = 0;
+      int scoreMemPointer = scoreListMem.size()+sizeof(uint32_t)*pathList.size();
       int headerOffest;
 
       std::ofstream logFileStream;
@@ -147,7 +147,7 @@ void generateScoreListMemAndScore(string midiFileListPath)
       vector<char> scoreListMemVector(scoreListMem.size());
       scoreListMem.readBytes(scoreListMemVector.data(), scoreListMem.size(), 0);
       convertMemToSourceFile(scoreListMemVector, "scoreList.c");
-      std::ofstream ofile("scoreList.bin", std::ios::binary);
+      std::ofstream ofile("scoreList.raw", std::ios::binary);
       ofile.write(scoreListMemVector.data(), scoreListMem.size());
 
       logFileStream<<"\n\n\n=============================================\n";

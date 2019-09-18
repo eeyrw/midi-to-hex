@@ -150,7 +150,7 @@ void NoteListProcessor::transposeTickNoteMap()
                   int transNote = note + tranpose;
                   if (transNote >= validLowestPitch && transNote <= validHighestPitch)
                   {
-                        candidateNotes.push_back(transNote - offestToMidiPitch);
+                        candidateNotes.push_back(transNote + offestToMidiPitch);
                   }
                   if (note == 128)
                   {
