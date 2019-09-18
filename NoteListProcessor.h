@@ -43,8 +43,9 @@ public:
   int offestToMidiPitch = 0;
   double midiDuration;
   map<int, int> noteOccurTimesMap;
+  std::ostream *defaultOutput;
 
-  NoteListProcessor(string midifilePath);
+  NoteListProcessor(string midifilePath, std::ostream *outputStream = &(std::cout));
   ~NoteListProcessor();
   void setExternTranspose(int t);
   void analyzeNoteMap();
@@ -61,5 +62,5 @@ private:
   void InitPitchName();
   void printAnalyzeResult();
 };
-}
+} // namespace noteListProcessor
 #endif

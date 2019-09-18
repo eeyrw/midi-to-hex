@@ -118,30 +118,35 @@ void generateScoreListMemAndScore(string midiFileListPath)
 
       ByteStream scoreListMem = ByteStream(128 * 1024);
 
-      string identifer = "SCORE";
+      string identifer = "SCRE";
       scoreListMem.writeBytes(identifer.c_str(), 4);
       scoreListMem.writeUInt32(pathList.size());
-      int scoreMemPointer=0;
+      int scoreMemPointer = 0;
+
+      std::ofstream logFileStream;
+      logFileStream.open("ScoreListGen.log");
 
       for (auto midiFilePath : pathList)
       {
             vector<char> mem;
-            NoteListProcessor np = NoteListProcessor(path);
+            NoteListProcessor np = NoteListProcessor(midiFilePath, &logFileStream);
             np.analyzeNoteMap();
             np.transposeTickNoteMap();
             np.generateDeltaBin(mem);
             scoreListMem.writeUInt32(scoreMemPointer);
-            scoreMemPointer+=mem.size();
+            scoreMemPointer += mem.size();
             std::move(mem.begin(), mem.end(), std::back_inserter(scoreMem));
       }
 
-      scoreListMem.writeBytes(scoreMem.data(),scoreMem.size());
+      scoreListMem.writeBytes(scoreMem.data(), scoreMem.size());
 
       vector<char> scoreListMemVector(scoreListMem.size());
-      scoreListMem.readBytes(scoreListMemVector.data(),scoreListMem.size(),0);
-      convertMemToSourceFile(scoreListMemVector,"scoreList.c");
+      scoreListMem.readBytes(scoreListMemVector.data(), scoreListMem.size(), 0);
+      convertMemToSourceFile(scoreListMemVector, "scoreList.c");
+      std::ofstream ofile("scoreList.bin", std::ios::binary);
+      ofile.write(scoreListMemVector.data(), scoreListMem.size());
 
-
+      logFileStream.close();
 }
 
 void convertMemToSourceFile(vector<char> &mem, string targetSourceFilePath)

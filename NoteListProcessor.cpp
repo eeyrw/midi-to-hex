@@ -47,9 +47,10 @@ void MidiHelper::getTickNoteMap(map<int, vector<int>> &tickNoteMap)
       }
 }
 
-NoteListProcessor::NoteListProcessor(string midifilePath)
+NoteListProcessor::NoteListProcessor(string midifilePath, std::ostream *outputStream)
 {
       MidiHelper helper = MidiHelper(midifilePath);
+      defaultOutput = outputStream;
       helper.getTickNoteMap(tickNoteMap);
       InitPitchName();
 }
@@ -73,9 +74,9 @@ void NoteListProcessor::InitPitchName()
 
 void NoteListProcessor::printAnalyzeResult()
 {
-      cout << "Song duration: " << midiDuration << " s" << endl;
-      cout << "Note pitch v.s. occur times table: " << endl;
-      TablePrinter tp(&std::cout);
+      (*defaultOutput) << "Song duration: " << midiDuration << " s" << endl;
+      (*defaultOutput) << "Note pitch v.s. occur times table: " << endl;
+      TablePrinter tp(defaultOutput);
       tp.AddColumn("Note pitch", 12);
       tp.AddColumn("Occur times", 12);
       tp.AddColumn("Is in range", 12);
@@ -92,11 +93,11 @@ void NoteListProcessor::printAnalyzeResult()
                   tp << "NO";
       }
       tp.PrintFooter();
-      cout << "Highest pitch: " << pitchName[highestPitch] << endl
-           << "Lowest pitch: " << pitchName[lowestPitch] << endl;
-      cout << "Transpose suggestion: " << suggestTranpose << " half note" << endl;
+      (*defaultOutput) << "Highest pitch: " << pitchName[highestPitch] << endl
+                       << "Lowest pitch: " << pitchName[lowestPitch] << endl;
+      (*defaultOutput) << "Transpose suggestion: " << suggestTranpose << " half note" << endl;
       if (useExternTransposeParam)
-            cout << "External transpose: " << externTransposeParam << " half note" << endl;
+            (*defaultOutput) << "External transpose: " << externTransposeParam << " half note" << endl;
 }
 void NoteListProcessor::setExternTranspose(int t)
 {
@@ -181,7 +182,7 @@ void NoteListProcessor::generateBin(vector<char> &mem)
       mem.push_back(static_cast<char>(noteMapItem->first >> 8));
       mem.push_back(0xFF);
 
-      cout << "Mem size: " << mem.size() << "b" << endl;
+      (*defaultOutput) << "Mem size: " << mem.size() << "b" << endl;
 }
 void NoteListProcessor::generateDeltaBin(vector<char> &mem)
 {
@@ -212,6 +213,6 @@ void NoteListProcessor::generateDeltaBin(vector<char> &mem)
       } while (deltaTick >= 0);
       mem.push_back(0xFF);
 
-      cout << "Mem size: " << mem.size() << "b" << endl;
+      (*defaultOutput) << "Mem size: " << mem.size() << "b" << endl;
 }
-}
+} // namespace noteListProcessor

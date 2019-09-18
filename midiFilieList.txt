@@ -7,3 +7,4 @@
 ./midi-sample/Katyusha.mid
 ./midi-sample/Moon_River_Noted_MusicBox.mid
 ./midi-sample/Moonlight_Sonata_Beethoven.mid
+./midi-sample/bwv1052a.mid
