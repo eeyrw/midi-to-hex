@@ -5,7 +5,7 @@ The midi-to-hex is written with C++ and uses cmake as build tool. The bootloader
 
 ## Windows
 
- 1. Install mingw**64**, libusb-**1.0** and cmake (Do it by yourself...) . 
+ 1. Install mingw**64** and cmake (Do it by yourself...) . 
  2. Open a shell ( I use powershell ) and locate it at the root directory of project and input `cmake -G "MinGW Makefiles" .`  (DO NOT MISS THE **DOT** IN THE END) and press Enter.
  3. If everything goes well... You can start to build and input  `mingw32-make.exe -j5` and press Enter. You may see the ouput from cmake such as `[100%] Built target midi-to-hex` (which means that you have built the midi-to-hex successfully) or a lot of error info... 
 ## Mac
@@ -85,6 +85,8 @@ There are some parameters that should be explain here:
 -d or --download: With this parameter means download hex file to music-box is required. 
 
 --device : Specify the mcu device used in your music-box. It only support t85 and t167 by now. The t85 will be default if without this parameter. 
+
+-scorelist or l: Specify a list file with midi files path.
 
 # Great Thanks to:
 ELM-Chan : http://elm-chan.org/works/mxb/report.html
