@@ -50,6 +50,12 @@ int main(int argc, char *argv[])
       if (options.getBoolean("midi"))
       {
             NoteListProcessor np = NoteListProcessor(options.getString("midi"));
+
+            if (options.getBoolean("lower"))
+                  np.validLowestPitch = options.getInteger("lower");
+            if (options.getBoolean("upper"))
+                  np.validHighestPitch = options.getInteger("upper");
+
             if (options.getBoolean("transpose"))
             {
                   int t = options.getInteger("transpose");
@@ -223,6 +229,8 @@ void checkOptions(Options &opts, int argc, char *argv[])
       opts.define("m|midi=s", "Midi file path.");
       opts.define("device=s", "Target mcu.");
       opts.define("l|scorelist=s", "Midi file list path.");
+      opts.define("lower=i", "Proper Lower Pitch");
+      opts.define("upper=i", "Proper Upper Pitch");
 
       opts.process(argc, argv);
 
