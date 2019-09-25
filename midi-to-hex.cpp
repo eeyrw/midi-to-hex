@@ -127,7 +127,7 @@ void generateScoreListMemAndScore(string midiFileListPath)
       string identifer = "SCRE";
       scoreListMem.writeBytes(identifer.c_str(), 4);
       scoreListMem.writeUInt32(pathList.size());
-      int scoreMemPointer = scoreListMem.size()+sizeof(uint32_t)*pathList.size();
+      int scoreMemPointer = scoreListMem.size() + sizeof(uint32_t) * pathList.size();
       int headerOffest;
 
       std::ofstream logFileStream;
@@ -137,16 +137,21 @@ void generateScoreListMemAndScore(string midiFileListPath)
       {
             vector<char> mem;
             NoteListProcessor np = NoteListProcessor(midiFilePath, &logFileStream);
-            logFileStream<<"File: "<<midiFilePath<<'\n';
+            if (options.getBoolean("lower"))
+                  np.validLowestPitch = options.getInteger("lower");
+            if (options.getBoolean("upper"))
+                  np.validHighestPitch = options.getInteger("upper");
+
+            logFileStream << "File: " << midiFilePath << '\n';
             np.analyzeNoteMap();
             np.transposeTickNoteMap();
             np.generateDeltaBin(mem);
             scoreListMem.writeUInt32(scoreMemPointer);
             scoreMemPointer += mem.size();
             std::move(mem.begin(), mem.end(), std::back_inserter(scoreMem));
-            logFileStream<<"\n\n";
+            logFileStream << "\n\n";
       }
-      headerOffest=scoreListMem.size();
+      headerOffest = scoreListMem.size();
 
       scoreListMem.writeBytes(scoreMem.data(), scoreMem.size());
 
@@ -156,10 +161,10 @@ void generateScoreListMemAndScore(string midiFileListPath)
       std::ofstream ofile("scoreList.raw", std::ios::binary);
       ofile.write(scoreListMemVector.data(), scoreListMem.size());
 
-      logFileStream<<"\n\n\n=============================================\n";
-      logFileStream<<"Score Count: "<<pathList.size()<<'\n';
-      logFileStream<<"Total Mem Size (byte): "<<scoreListMem.size()+headerOffest<<'\n';
-      logFileStream<<"Score Data Mem Size (byte): "<<scoreListMem.size()<<'\n';
+      logFileStream << "\n\n\n=============================================\n";
+      logFileStream << "Score Count: " << pathList.size() << '\n';
+      logFileStream << "Total Mem Size (byte): " << scoreListMem.size() + headerOffest << '\n';
+      logFileStream << "Score Data Mem Size (byte): " << scoreListMem.size() << '\n';
       logFileStream.close();
 }
 
