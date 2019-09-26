@@ -95,6 +95,7 @@ void NoteListProcessor::printAnalyzeResult()
       tp.PrintFooter();
       (*defaultOutput) << "Highest pitch: " << pitchName[highestPitch] << endl
                        << "Lowest pitch: " << pitchName[lowestPitch] << endl;
+      (*defaultOutput) << "Centroid pitch: " << pitchName[centroidPitch] << endl;
       (*defaultOutput) << "Transpose suggestion: " << suggestTranpose << " half note" << endl;
       if (useExternTransposeParam)
             (*defaultOutput) << "External transpose: " << externTransposeParam << " half note" << endl;
@@ -135,6 +136,57 @@ void NoteListProcessor::analyzeNoteMap()
 
       printAnalyzeResult();
 }
+
+void NoteListProcessor::analyzeNoteMapByCentroid()
+{
+      for (auto &noteMapItem : tickNoteMap)
+      {
+            for (auto &note : noteMapItem.second)
+            {
+                  ++noteOccurTimesMap[note];
+            }
+      }
+
+      lowestPitch = noteOccurTimesMap.begin()->first;
+      highestPitch = (--(--noteOccurTimesMap.end()))->first; //remove fine
+
+      int centroidSum1 = 0;
+      int centroidSum2 = 0;
+      for (auto &noteOccurTimesMapItem : noteOccurTimesMap)
+      {
+            centroidSum1 += noteOccurTimesMapItem.first *
+                            noteOccurTimesMapItem.second;
+            centroidSum2 += noteOccurTimesMapItem.second;
+      }
+
+      centroidPitch = centroidSum1 / centroidSum2;
+      int centerOfSuggest = recommLowestPitch +
+                            (recommHighestPitch - recommLowestPitch) / 2;
+
+      int wantedTranspose = centerOfSuggest - centroidPitch;
+
+      int wantedHighestPitch = highestPitch + wantedTranspose;
+      int wantedLowestPitch = lowestPitch + wantedTranspose;
+
+      int offestToVailidHighestPitch = validHighestPitch - wantedHighestPitch;
+      int offestToVailidLowestPitch = validLowestPitch - wantedLowestPitch;
+
+      if (offestToVailidHighestPitch >= 0 && offestToVailidLowestPitch <= 0)
+            suggestTranpose += 0;
+      else if (offestToVailidHighestPitch < 0)
+            suggestTranpose += offestToVailidHighestPitch; //keep the highest pitch by all means
+      else if (offestToVailidLowestPitch >= 0)
+      {
+            if (abs(offestToVailidHighestPitch) >= abs(offestToVailidLowestPitch))
+                  suggestTranpose += offestToVailidLowestPitch;
+            else
+                  suggestTranpose += offestToVailidHighestPitch;
+      }
+      midiDuration = (*(--tickNoteMap.cend())).first / 120.0;
+
+      printAnalyzeResult();
+}
+
 void NoteListProcessor::transposeTickNoteMap()
 {
       int tranpose = 0;

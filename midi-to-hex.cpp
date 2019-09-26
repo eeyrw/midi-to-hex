@@ -52,9 +52,9 @@ int main(int argc, char *argv[])
             NoteListProcessor np = NoteListProcessor(options.getString("midi"));
 
             if (options.getBoolean("lower"))
-                  np.validLowestPitch = options.getInteger("lower");
+                  np.recommLowestPitch= options.getInteger("lower");
             if (options.getBoolean("upper"))
-                  np.validHighestPitch = options.getInteger("upper");
+                  np.recommHighestPitch = options.getInteger("upper");
 
             if (options.getBoolean("transpose"))
             {
@@ -138,12 +138,12 @@ void generateScoreListMemAndScore(string midiFileListPath)
             vector<char> mem;
             NoteListProcessor np = NoteListProcessor(midiFilePath, &logFileStream);
             if (options.getBoolean("lower"))
-                  np.validLowestPitch = options.getInteger("lower");
+                  np.recommLowestPitch= options.getInteger("lower");
             if (options.getBoolean("upper"))
-                  np.validHighestPitch = options.getInteger("upper");
+                  np.recommHighestPitch = options.getInteger("upper");
 
             logFileStream << "File: " << midiFilePath << '\n';
-            np.analyzeNoteMap();
+            np.analyzeNoteMapByCentroid();
             np.transposeTickNoteMap();
             np.generateDeltaBin(mem);
             scoreListMem.writeUInt32(scoreMemPointer);

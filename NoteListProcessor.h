@@ -37,18 +37,22 @@ class NoteListProcessor
 public:
   int highestPitch;
   int lowestPitch;
-  int validHighestPitch = 120;
-  int validLowestPitch = 32;
+  int validHighestPitch = 127;
+  int validLowestPitch = 0;
+  int recommHighestPitch = 120;
+  int recommLowestPitch = 45;
   int suggestTranpose;
   int offestToMidiPitch = 0;
   double midiDuration;
   map<int, int> noteOccurTimesMap;
+  int centroidPitch = 0;
   std::ostream *defaultOutput;
 
   NoteListProcessor(string midifilePath, std::ostream *outputStream = &(std::cout));
   ~NoteListProcessor();
   void setExternTranspose(int t);
   void analyzeNoteMap();
+  void analyzeNoteMapByCentroid();
   void transposeTickNoteMap();
   void generateBin(vector<char> &mem);
   void generateDeltaBin(vector<char> &mem);
