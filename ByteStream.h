@@ -1,6 +1,5 @@
 
 #pragma once
-#define __STDC_WANT_LIB_EXT1__
 #include <stdint.h>
 #include <stdio.h>
 #include <assert.h>

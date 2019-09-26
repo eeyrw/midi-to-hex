@@ -163,13 +163,13 @@ void NoteListProcessor::analyzeNoteMapByCentroid()
       int centerOfSuggest = recommLowestPitch +
                             (recommHighestPitch - recommLowestPitch) / 2;
 
-      int wantedTranspose = centerOfSuggest-centroidPitch;
+      int wantedTranspose = centerOfSuggest - centroidPitch;
 
       int wantedHighestPitch = highestPitch + wantedTranspose;
       int wantedLowestPitch = lowestPitch + wantedTranspose;
 
       suggestTranpose = wantedTranspose;
-      
+
       int offestToVailidHighestPitch = validHighestPitch - wantedHighestPitch;
       int offestToVailidLowestPitch = validLowestPitch - wantedLowestPitch;
 
@@ -248,7 +248,7 @@ void NoteListProcessor::generateDeltaBin(vector<char> &mem)
             lastTick = noteMapItem->first;
             do
             {
-                  mem.push_back(deltaTick < 255 ? deltaTick : 255);
+                  mem.push_back(deltaTick < 255 ? deltaTick : static_cast<char>(255));
                   deltaTick -= 255;
             } while (deltaTick >= 0);
 
@@ -262,7 +262,7 @@ void NoteListProcessor::generateDeltaBin(vector<char> &mem)
       lastTick = noteMapItem->first;
       do
       {
-            mem.push_back(deltaTick < 255 ? deltaTick : 255);
+            mem.push_back(deltaTick < 255 ? deltaTick : static_cast<char>(255));
             deltaTick -= 255;
       } while (deltaTick >= 0);
       mem.push_back(0xFF);
