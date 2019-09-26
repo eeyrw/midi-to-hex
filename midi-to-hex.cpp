@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
             NoteListProcessor np = NoteListProcessor(options.getString("midi"));
 
             if (options.getBoolean("lower"))
-                  np.recommLowestPitch= options.getInteger("lower");
+                  np.recommLowestPitch = options.getInteger("lower");
             if (options.getBoolean("upper"))
                   np.recommHighestPitch = options.getInteger("upper");
 
@@ -131,6 +131,7 @@ void generateScoreListMemAndScore(string midiFileListPath)
       scoreListMem.writeUInt32(pathList.size());
       int scoreMemPointer = scoreListMem.size() + sizeof(uint32_t) * pathList.size();
       int headerOffest;
+      double totalDuration = 0;
 
       std::ofstream logFileStream;
       logFileStream.open("ScoreListGen.log");
@@ -140,7 +141,7 @@ void generateScoreListMemAndScore(string midiFileListPath)
             vector<char> mem;
             NoteListProcessor np = NoteListProcessor(midiFilePath, &logFileStream);
             if (options.getBoolean("lower"))
-                  np.recommLowestPitch= options.getInteger("lower");
+                  np.recommLowestPitch = options.getInteger("lower");
             if (options.getBoolean("upper"))
                   np.recommHighestPitch = options.getInteger("upper");
 
@@ -151,6 +152,7 @@ void generateScoreListMemAndScore(string midiFileListPath)
             scoreListMem.writeUInt32(scoreMemPointer);
             scoreMemPointer += mem.size();
             std::move(mem.begin(), mem.end(), std::back_inserter(scoreMem));
+            totalDuration += np.midiDuration;
             logFileStream << "\n\n";
       }
       headerOffest = scoreListMem.size();
@@ -167,6 +169,10 @@ void generateScoreListMemAndScore(string midiFileListPath)
       logFileStream << "Score Count: " << pathList.size() << '\n';
       logFileStream << "Total Mem Size (byte): " << scoreListMem.size() + headerOffest << '\n';
       logFileStream << "Score Data Mem Size (byte): " << scoreListMem.size() << '\n';
+      int dur = static_cast<int>(totalDuration);
+      logFileStream << "Total Duration: " << dur / 3600 << "h "
+                    << dur / 60 % 60 << "m "
+                    << dur % 60 << "s " << '\n';
       logFileStream.close();
 }
 
