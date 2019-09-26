@@ -13,6 +13,7 @@
 #include "bprinter/table_printer.h"
 #include "NoteListProcessor.h"
 #include "ByteStream.h"
+#include "fmt/core.h"
 
 using namespace std;
 using namespace smf;
@@ -109,6 +110,7 @@ void generateScoreListMemAndScore(string midiFileListPath)
       std::string path;
       vector<char> scoreMem;
       vector<string> pathList;
+      fmt::print("Start Generate Score Data list");
 
       while (std::getline(stream, path))
       {
