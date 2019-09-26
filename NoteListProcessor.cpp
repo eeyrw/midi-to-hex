@@ -163,11 +163,13 @@ void NoteListProcessor::analyzeNoteMapByCentroid()
       int centerOfSuggest = recommLowestPitch +
                             (recommHighestPitch - recommLowestPitch) / 2;
 
-      int wantedTranspose = centerOfSuggest - centroidPitch;
+      int wantedTranspose = centerOfSuggest-centroidPitch;
 
       int wantedHighestPitch = highestPitch + wantedTranspose;
       int wantedLowestPitch = lowestPitch + wantedTranspose;
 
+      suggestTranpose = wantedTranspose;
+      
       int offestToVailidHighestPitch = validHighestPitch - wantedHighestPitch;
       int offestToVailidLowestPitch = validLowestPitch - wantedLowestPitch;
 
