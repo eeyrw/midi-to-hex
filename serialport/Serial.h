@@ -21,17 +21,20 @@
 #include <WinIOCtl.h>
 #include <Setupapi.h>
 #include <cfgmgr32.h>
-
-typedef std::basic_string<TCHAR> tstring;
+using namespace std;
 
 class Serial
 {
-private:
-	HANDLE commHandle;
-	void CleanUp();
+
+
 
 public:
-	Serial(tstring &commPortName, int bitRate = 115200);
+	HANDLE commHandle;
+	void CleanUp();
+	Serial(string &commPortName, int bitRate = 115200);
+	Serial(uint16_t vid, uint16_t pid);
+	Serial();
+	int openPort(string &commPortName, int bitRate);
 
 	virtual ~Serial();
 
@@ -65,8 +68,7 @@ public:
 	/** Flushes everything from the serial port's read buffer
 	 */
 	void flush();
-	string detectUsbSerialPort(uint32_t pid,uint32_t vid);
-
+	string detectUsbSerialPort(uint16_t vid, uint16_t pid);
 };
 
 #endif

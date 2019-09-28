@@ -14,11 +14,15 @@
 #include "NoteListProcessor.h"
 #include "ByteStream.h"
 #include "fmt/core.h"
+#include "Serial.h"
+#include "ScoreDataDownload.h"
 
 using namespace std;
 using namespace smf;
 using bprinter::TablePrinter;
 using noteListProcessor::NoteListProcessor;
+using scoreDataDownload::ScoreDataDownload;
+
 
 typedef unsigned char uchar;
 
@@ -39,6 +43,8 @@ extern "C"
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+
 
 int main(int argc, char *argv[])
 {
@@ -101,6 +107,8 @@ int main(int argc, char *argv[])
             generateScoreListMemAndScore(path);
       }
 
+      ScoreDataDownload screDl("./scoreList.raw");
+      //screDl.download();
       return 0;
 }
 

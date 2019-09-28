@@ -31,5 +31,5 @@ INCLUDE_DIRECTORIES(./fmt/include)
 INCLUDE_DIRECTORIES(./serialport)
 
 # add the executable
-add_executable(midi-to-hex midi-to-hex.cpp NoteListProcessor.cpp ByteStream.cpp ./fmt/src/format.cc ./serialport/Serial.cpp ${DIR_MIDI_LIB_SRCS} ${DIR_HEX_LIB_SRCS} ${DIR_MICRONUCLEUS_SRCS} ${DIR_BPRINTER_LIB_SRCS} ${DIR_MICRONUCLEUS_LIB_SRCS})
+add_executable(midi-to-hex midi-to-hex.cpp NoteListProcessor.cpp ByteStream.cpp ./fmt/src/format.cc ./serialport/Serial.cpp ScoreDataDownload.cpp ${DIR_MIDI_LIB_SRCS} ${DIR_HEX_LIB_SRCS} ${DIR_MICRONUCLEUS_SRCS} ${DIR_BPRINTER_LIB_SRCS} ${DIR_MICRONUCLEUS_LIB_SRCS})
 target_link_libraries(midi-to-hex -lusb-1.0 -lsetupapi)

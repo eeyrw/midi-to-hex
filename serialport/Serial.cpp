@@ -11,15 +11,24 @@
 using namespace std;
 
 #include "Serial.h"
-
-Serial::Serial(tstring &commPortName, int bitRate)
+Serial::Serial()
 {
+
+}
+Serial::Serial(string &commPortName, int bitRate)
+{
+	openPort(commPortName, bitRate);
+}
+
+int Serial::openPort(string &commPortName, int bitRate)
+{
+	printf(commPortName.c_str());
 	commHandle = CreateFile(commPortName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
-							0, NULL);
+							FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if (commHandle == INVALID_HANDLE_VALUE)
 	{
-		throw("ERROR: Could not open com port");
+		printf("ERROR: Could not open com port");
 	}
 	else
 	{
@@ -29,7 +38,7 @@ Serial::Serial(tstring &commPortName, int bitRate)
 		if (!SetCommTimeouts(commHandle, &cto))
 		{
 			CleanUp();
-			throw("ERROR: Could not set com port time-outs");
+			printf("ERROR: Could not set com port time-outs");
 		}
 
 		// set DCB
@@ -47,9 +56,17 @@ Serial::Serial(tstring &commPortName, int bitRate)
 		if (!SetCommState(commHandle, &dcb))
 		{
 			CleanUp();
-			throw("ERROR: Could not set com port parameters");
+			printf("ERROR: Could not set com port parameters");
 		}
 	}
+}
+
+
+
+Serial::Serial(uint16_t vid, uint16_t pid)
+{
+	string devicePath=detectUsbSerialPort(vid, pid);
+	openPort(devicePath,115200);
 }
 
 void Serial::CleanUp()
@@ -113,7 +130,7 @@ void Serial::flush()
 	}
 }
 
-string Serial::detectUsbSerialPort(uint32_t pid,uint32_t vid)
+string Serial::detectUsbSerialPort(uint16_t vid, uint16_t pid)
 {
 	HANDLE hSerial; // Handle to the Serial port
 	DWORD dwGuids;
@@ -153,8 +170,10 @@ string Serial::detectUsbSerialPort(uint32_t pid,uint32_t vid)
 
 		//printf("%s\n", &szDeviceInstanceID[0]);
 
-		if (0 == strncmp(&szDeviceInstanceID[0], "USB\\VID_1A86&PID_7523",
-						 strlen("USB\\VID_1A86&PID_7523")))
+		char usbVidPidString[1024];
+		sprintf(usbVidPidString, "USB\\VID_%04X&PID_%04X", vid, pid);
+		if (0 == strncmp(&szDeviceInstanceID[0], usbVidPidString,
+						 strlen(usbVidPidString)))
 		{
 
 			DWORD requiredSize;
@@ -163,7 +182,7 @@ string Serial::detectUsbSerialPort(uint32_t pid,uint32_t vid)
 			SP_DEVICE_INTERFACE_DATA devInterfaceData;
 			SP_DEVICE_INTERFACE_DETAIL_DATA *pDevInterfaceDetailData;
 
-			printf("&szDeviceInstanceID[0] = %s\n", &szDeviceInstanceID[0]);
+			//printf("&szDeviceInstanceID[0] = %s\n", &szDeviceInstanceID[0]);
 
 			ZeroMemory(&devInterfaceData, sizeof(SP_DEVICE_INTERFACE_DATA));
 
@@ -186,20 +205,24 @@ string Serial::detectUsbSerialPort(uint32_t pid,uint32_t vid)
 													&devInterfaceData, pDevInterfaceDetailData, requiredSize,
 													&requiredSize, &devInfoData);
 
-			printf("devInterfaceDetailData.DevicePath = %s\n",
-				   pDevInterfaceDetailData->DevicePath);
+			//printf("devInterfaceDetailData.DevicePath = %s\n",
+			//	   pDevInterfaceDetailData->DevicePath);
 
-			// hSerial = CreateFile(pDevInterfaceDetailData->DevicePath,
-			// 					 GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
-			// 					 FILE_ATTRIBUTE_NORMAL, NULL);
+			 hSerial = CreateFile(pDevInterfaceDetailData->DevicePath,
+			 					 GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
+			 					 FILE_ATTRIBUTE_NORMAL, NULL);
 
 			comName = string(pDevInterfaceDetailData->DevicePath);
 
 			free(pDevInterfaceDetailData);
 			pDevInterfaceDetailData = NULL;
 
-			// if (INVALID_HANDLE_VALUE != hSerial)
-			// 	break;
+			 if (INVALID_HANDLE_VALUE != hSerial)
+			 {
+				 CloseHandle(hSerial);
+				 break;
+			 }
+			 	
 		}
 	}
 
