@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
                   int t = options.getInteger("transpose");
                   np.setExternTranspose(t);
             }
-            np.analyzeNoteMap();
+            np.analyzeNoteMapByCentroid();
             np.transposeTickNoteMap();
             np.generateDeltaBin(mem);
             string defaultHexFile = "./hex-file/mg.hex";
