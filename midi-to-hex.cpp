@@ -180,7 +180,12 @@ void convertMemToSourceFile(vector<char> &mem, string targetSourceFilePath)
 {
       FILE *targetSourceFile;
       targetSourceFile = fopen(targetSourceFilePath.c_str(), "w");
+      fprintf(targetSourceFile, "#ifdef __AVR_ARCH__\n");
+      fprintf(targetSourceFile, "#include <avr/pgmspace.h>\n");      
+      fprintf(targetSourceFile, "const unsigned char Score[] PROGMEM ={\n");
+      fprintf(targetSourceFile, "#else\n");
       fprintf(targetSourceFile, "const unsigned char Score[]={\n");
+      fprintf(targetSourceFile, "#endif\n");            
       int lineCounter = 0;
       for (auto b : mem)
       {
