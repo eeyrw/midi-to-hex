@@ -1,5 +1,7 @@
 #include "NoteListProcessor.h"
 
+using namespace smf;
+
 namespace noteListProcessor
 {
 using bprinter::TablePrinter;
@@ -23,7 +25,8 @@ void MidiHelper::getTickNoteMap(map<int, vector<int>> &tickNoteMap)
       for (int i = 0; i < midifile.getNumEvents(0); i++)
       {
             int command = midifile[0][i][0] & 0xf0;
-            if (command == 0x90 && midifile[0][i][2] != 0)
+            int channel = midifile[0][i][0] & 0x0f;
+            if (command == 0x90 && midifile[0][i][2] != 0 && channel!=0x09)
             {
                   key = midifile[0][i][1];
                   int t = static_cast<int>(midifile.getTimeInSeconds(midifile[0][i].tick) * tickPerSecond);
@@ -45,9 +48,10 @@ void MidiHelper::getTickNoteMap(map<int, vector<int>> &tickNoteMap)
       }
 }
 
-NoteListProcessor::NoteListProcessor(string midifilePath)
+NoteListProcessor::NoteListProcessor(string midifilePath, std::ostream *outputStream)
 {
       MidiHelper helper = MidiHelper(midifilePath);
+      defaultOutput = outputStream;
       helper.getTickNoteMap(tickNoteMap);
       InitPitchName();
 }
@@ -71,9 +75,9 @@ void NoteListProcessor::InitPitchName()
 
 void NoteListProcessor::printAnalyzeResult()
 {
-      cout << "Song duration: " << midiDuration << " s" << endl;
-      cout << "Note pitch v.s. occur times table: " << endl;
-      TablePrinter tp(&std::cout);
+      (*defaultOutput) << "Song duration: " << midiDuration << " s" << endl;
+      (*defaultOutput) << "Note pitch v.s. occur times table: " << endl;
+      TablePrinter tp(defaultOutput);
       tp.AddColumn("Note pitch", 12);
       tp.AddColumn("Occur times", 12);
       tp.AddColumn("Is in range", 12);
@@ -90,11 +94,12 @@ void NoteListProcessor::printAnalyzeResult()
                   tp << "NO";
       }
       tp.PrintFooter();
-      cout << "Highest pitch: " << pitchName[highestPitch] << endl
-           << "Lowest pitch: " << pitchName[lowestPitch] << endl;
-      cout << "Transpose suggestion: " << suggestTranpose << " half note" << endl;
+      (*defaultOutput) << "Highest pitch: " << pitchName[highestPitch] << endl
+                       << "Lowest pitch: " << pitchName[lowestPitch] << endl;
+      (*defaultOutput) << "Centroid pitch: " << pitchName[centroidPitch] << endl;
+      (*defaultOutput) << "Transpose suggestion: " << suggestTranpose << " half note" << endl;
       if (useExternTransposeParam)
-            cout << "External transpose: " << externTransposeParam << " half note" << endl;
+            (*defaultOutput) << "External transpose: " << externTransposeParam << " half note" << endl;
 }
 void NoteListProcessor::setExternTranspose(int t)
 {
@@ -120,7 +125,7 @@ void NoteListProcessor::analyzeNoteMap()
       if (offestToVailidHighestPitch >= 0 && offestToVailidLowestPitch <= 0)
             suggestTranpose = 0;
       else if (offestToVailidHighestPitch < 0)
-            suggestTranpose = offestToVailidHighestPitch; //keep the highest pitch by no means
+            suggestTranpose = offestToVailidHighestPitch; //keep the highest pitch by all means
       else if (offestToVailidLowestPitch >= 0)
       {
             if (abs(offestToVailidHighestPitch) >= abs(offestToVailidLowestPitch))
@@ -132,6 +137,59 @@ void NoteListProcessor::analyzeNoteMap()
 
       printAnalyzeResult();
 }
+
+void NoteListProcessor::analyzeNoteMapByCentroid()
+{
+      for (auto &noteMapItem : tickNoteMap)
+      {
+            for (auto &note : noteMapItem.second)
+            {
+                  ++noteOccurTimesMap[note];
+            }
+      }
+
+      lowestPitch = noteOccurTimesMap.begin()->first;
+      highestPitch = (--(--noteOccurTimesMap.end()))->first; //remove fine
+
+      int centroidSum1 = 0;
+      int centroidSum2 = 0;
+      for (auto &noteOccurTimesMapItem : noteOccurTimesMap)
+      {
+            centroidSum1 += noteOccurTimesMapItem.first *
+                            noteOccurTimesMapItem.second;
+            centroidSum2 += noteOccurTimesMapItem.second;
+      }
+
+      centroidPitch = centroidSum1 / centroidSum2;
+      int centerOfSuggest = recommLowestPitch +
+                            (recommHighestPitch - recommLowestPitch) / 2;
+
+      int wantedTranspose = centerOfSuggest - centroidPitch;
+
+      int wantedHighestPitch = highestPitch + wantedTranspose;
+      int wantedLowestPitch = lowestPitch + wantedTranspose;
+
+      suggestTranpose = wantedTranspose;
+
+      int offestToVailidHighestPitch = validHighestPitch - wantedHighestPitch;
+      int offestToVailidLowestPitch = validLowestPitch - wantedLowestPitch;
+
+      if (offestToVailidHighestPitch >= 0 && offestToVailidLowestPitch <= 0)
+            suggestTranpose += 0;
+      else if (offestToVailidHighestPitch < 0)
+            suggestTranpose += offestToVailidHighestPitch; //keep the highest pitch by all means
+      else if (offestToVailidLowestPitch >= 0)
+      {
+            if (abs(offestToVailidHighestPitch) >= abs(offestToVailidLowestPitch))
+                  suggestTranpose += offestToVailidLowestPitch;
+            else
+                  suggestTranpose += offestToVailidHighestPitch;
+      }
+      midiDuration = (*(--tickNoteMap.cend())).first / 120.0;
+
+      printAnalyzeResult();
+}
+
 void NoteListProcessor::transposeTickNoteMap()
 {
       int tranpose = 0;
@@ -147,7 +205,7 @@ void NoteListProcessor::transposeTickNoteMap()
                   int transNote = note + tranpose;
                   if (transNote >= validLowestPitch && transNote <= validHighestPitch)
                   {
-                        candidateNotes.push_back(transNote - validLowestPitch);
+                        candidateNotes.push_back(transNote + offestToMidiPitch);
                   }
                   if (note == 128)
                   {
@@ -179,7 +237,7 @@ void NoteListProcessor::generateBin(vector<char> &mem)
       mem.push_back(static_cast<char>(noteMapItem->first >> 8));
       mem.push_back(0xFF);
 
-      cout << "Mem size: " << mem.size() << "b" << endl;
+      (*defaultOutput) << "Mem size: " << mem.size() << "b" << endl;
 }
 void NoteListProcessor::generateDeltaBin(vector<char> &mem)
 {
@@ -191,7 +249,7 @@ void NoteListProcessor::generateDeltaBin(vector<char> &mem)
             lastTick = noteMapItem->first;
             do
             {
-                  mem.push_back(deltaTick < 255 ? deltaTick : 255);
+                  mem.push_back(deltaTick < 255 ? deltaTick : static_cast<char>(255));
                   deltaTick -= 255;
             } while (deltaTick >= 0);
 
@@ -205,11 +263,11 @@ void NoteListProcessor::generateDeltaBin(vector<char> &mem)
       lastTick = noteMapItem->first;
       do
       {
-            mem.push_back(deltaTick < 255 ? deltaTick : 255);
+            mem.push_back(deltaTick < 255 ? deltaTick : static_cast<char>(255));
             deltaTick -= 255;
       } while (deltaTick >= 0);
       mem.push_back(0xFF);
 
-      cout << "Mem size: " << mem.size() << "b" << endl;
+      (*defaultOutput) << "Mem size: " << mem.size() << "b" << endl;
 }
-}
+} // namespace noteListProcessor

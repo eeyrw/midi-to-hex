@@ -1,0 +1,25 @@
+./midi-sample/mozart_sonata_2-pianos_375_1_(c)ishenko.mid
+./midi-sample/Always-with-me-musicbox.mid
+./midi-sample/Bach_-_Arioso_from_Cantata_BWV_156.mid
+./midi-sample/Beethoven_-_Pathetique.mid
+./midi-sample/molihua.mid
+./midi-sample/mozart_k265.mid
+./midi-sample/Auld_Lang_Syne_MusicBox.mid
+./midi-sample/Katyusha.mid
+./midi-sample/Moon_River_Noted_MusicBox.mid
+./midi-sample/Moonlight_Sonata_Beethoven.mid
+./midi-sample/bach_brandeburg_concert_1047_1_(nc)anonym.mid
+./midi-sample/Eine_Kleine_Nachtmusik.mid
+./midi-sample/Innocent.mid
+./midi-sample/mozart_k331_3.mid
+./midi-sample/polka.mid
+./midi-sample/W.A._Mozart_-_Symphony_no._40_-_Mov._I.mid
+./midi-sample/EVA 残酷天使的行动纲领 指弹.mid
+./midi-sample/J._S._Bach_Sheep_May_Safely_Graze_BWV_208_No._9_for_Piano_arranged_by_Egon_Petri.mid
+./midi-sample/Menuett_G_dur_BWV.mid
+./midi-sample/mozart_k545_1.mid
+./midi-sample/piano_fantasie_475_(c)oguri.mid
+./midi-sample/River_Flows_in_You.mid
+./midi-sample/Yoru_no_uta_-_yenoge.mid
+./midi-sample/Canon in D.mid
+./midi-sample/bach_tocatta_fugue_d_minor.mid

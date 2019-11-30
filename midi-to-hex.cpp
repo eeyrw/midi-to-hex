@@ -12,8 +12,11 @@
 #include "intelhexclass.h"
 #include "bprinter/table_printer.h"
 #include "NoteListProcessor.h"
+#include "ByteStream.h"
+#include "fmt/core.h"
 
 using namespace std;
+using namespace smf;
 using bprinter::TablePrinter;
 using noteListProcessor::NoteListProcessor;
 
@@ -26,11 +29,13 @@ Options options;
 void convertNoteMaptoRom(map<int, vector<int>> &noteMap, vector<char> &mem);
 void convertMemToHexFile(vector<char> &mem, string originalHexFilePath, string targetHexFilePath);
 void convertMemToSourceFile(vector<char> &mem, string targetSourceFilePath);
+void generateScoreListMemAndScore(string midiFileListPath);
 void checkOptions(Options &opts, int argc, char **argv);
 void example(void);
 void usage(const char *command);
-extern "C" {
-extern int micronucleus_main(int argc, char **argv);
+extern "C"
+{
+      extern int micronucleus_main(int argc, char **argv);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -39,33 +44,45 @@ int main(int argc, char *argv[])
 {
 
       map<int, vector<int>> noteMap;
+
       checkOptions(options, argc, argv);
       vector<char> mem;
-      NoteListProcessor np = NoteListProcessor(options.getString("midi"));
-      if (options.getBoolean("transpose"))
+
+      if (options.getBoolean("midi"))
       {
-            int t = options.getInteger("transpose");
-            np.setExternTranspose(t);
-      }
-      np.analyzeNoteMap();
-      np.transposeTickNoteMap();
-      np.generateDeltaBin(mem);
-      string defaultHexFile = "./hex-file/mg.hex";
-      if (options.getBoolean("device"))
-      {
-            string dev = options.getString("device");
-            if (dev == "t167")
+            NoteListProcessor np = NoteListProcessor(options.getString("midi"));
+
+            if (options.getBoolean("lower"))
+                  np.recommLowestPitch = options.getInteger("lower");
+            if (options.getBoolean("upper"))
+                  np.recommHighestPitch = options.getInteger("upper");
+
+            if (options.getBoolean("transpose"))
             {
-                  defaultHexFile = "./hex-file/mg_167.hex";
-                  cout << "Generate hex file for ATTINY 167." << endl;
-            }else if (dev == "m328p")
-			{
-                  defaultHexFile = "./hex-file/mg_m328p.hex";
-                  cout << "Generate hex file for Atmega328p." << endl;				
-			}
+                  int t = options.getInteger("transpose");
+                  np.setExternTranspose(t);
+            }
+            np.analyzeNoteMapByCentroid();
+            np.transposeTickNoteMap();
+            np.generateDeltaBin(mem);
+            string defaultHexFile = "./hex-file/mg.hex";
+            if (options.getBoolean("device"))
+            {
+                  string dev = options.getString("device");
+                  if (dev == "t167")
+                  {
+                        defaultHexFile = "./hex-file/mg_167.hex";
+                        cout << "Generate hex file for ATTINY 167." << endl;
+                  }
+                  else if (dev == "m328p")
+                  {
+                        defaultHexFile = "./hex-file/mg_m328p.hex";
+                        cout << "Generate hex file for Atmega328p." << endl;
+                  }
+            }
+            convertMemToHexFile(mem, defaultHexFile, "target.hex");
+            convertMemToSourceFile(mem, "score.c");
       }
-      convertMemToHexFile(mem, defaultHexFile, "target.hex");
-      convertMemToSourceFile(mem,"score.c");
 
       if (options.getBoolean("download"))
       {
@@ -78,27 +95,109 @@ int main(int argc, char *argv[])
             return micronucleus_main(4, micronucleus_argv);
       }
 
+      if (options.getBoolean("scorelist"))
+      {
+            string path = options.getString("scorelist");
+            generateScoreListMemAndScore(path);
+      }
+
       return 0;
+}
+
+void generateScoreListMemAndScore(string midiFileListPath)
+{
+      std::ifstream stream(midiFileListPath);
+      std::string path;
+      vector<char> scoreMem;
+      vector<string> pathList;
+      fmt::print("Start Generate Score Data list");
+
+      while (std::getline(stream, path))
+      {
+            if (path[0] != '#')
+            {
+                  ifstream f(path.c_str());
+                  if (f.good())
+                        pathList.push_back(path);
+                  else
+                        cout << "Cannot find midi file:" << path;
+            }
+      }
+
+      ByteStream scoreListMem = ByteStream(128 * 1024);
+
+      string identifer = "SCRE";
+      scoreListMem.writeBytes(identifer.c_str(), 4);
+      scoreListMem.writeUInt32(pathList.size());
+      int scoreMemPointer = scoreListMem.size() + sizeof(uint32_t) * pathList.size();
+      int headerOffest;
+      double totalDuration = 0;
+
+      std::ofstream logFileStream;
+      logFileStream.open("ScoreListGen.log");
+
+      for (auto midiFilePath : pathList)
+      {
+            vector<char> mem;
+            NoteListProcessor np = NoteListProcessor(midiFilePath, &logFileStream);
+            if (options.getBoolean("lower"))
+                  np.recommLowestPitch = options.getInteger("lower");
+            if (options.getBoolean("upper"))
+                  np.recommHighestPitch = options.getInteger("upper");
+
+            logFileStream << "File: " << midiFilePath << '\n';
+            np.analyzeNoteMapByCentroid();
+            np.transposeTickNoteMap();
+            np.generateDeltaBin(mem);
+            scoreListMem.writeUInt32(scoreMemPointer);
+            scoreMemPointer += mem.size();
+            std::move(mem.begin(), mem.end(), std::back_inserter(scoreMem));
+            totalDuration += np.midiDuration;
+            logFileStream << "\n\n";
+      }
+      headerOffest = scoreListMem.size();
+
+      scoreListMem.writeBytes(scoreMem.data(), scoreMem.size());
+
+      vector<char> scoreListMemVector(scoreListMem.size());
+      scoreListMem.readBytes(scoreListMemVector.data(), scoreListMem.size(), 0);
+      convertMemToSourceFile(scoreListMemVector, "scoreList.c");
+      std::ofstream ofile("scoreList.raw", std::ios::binary);
+      ofile.write(scoreListMemVector.data(), scoreListMem.size());
+
+      logFileStream << "\n\n\n=============================================\n";
+      logFileStream << "Score Count: " << pathList.size() << '\n';
+      logFileStream << "Total Mem Size (byte): " << scoreListMem.size() + headerOffest << '\n';
+      logFileStream << "Score Data Mem Size (byte): " << scoreListMem.size() << '\n';
+      int dur = static_cast<int>(totalDuration);
+      logFileStream << "Total Duration: " << dur / 3600 << "h "
+                    << dur / 60 % 60 << "m "
+                    << dur % 60 << "s " << '\n';
+      logFileStream.close();
 }
 
 void convertMemToSourceFile(vector<char> &mem, string targetSourceFilePath)
 {
-      FILE* targetSourceFile;
-      targetSourceFile=fopen(targetSourceFilePath.c_str(),"w");
-      fprintf(targetSourceFile,"const unsigned char Score[]={\n");
-      int lineCounter=0;
-      for(auto b:mem)
+      FILE *targetSourceFile;
+      targetSourceFile = fopen(targetSourceFilePath.c_str(), "w");
+      fprintf(targetSourceFile, "#ifdef __AVR_ARCH__\n");
+      fprintf(targetSourceFile, "#include <avr/pgmspace.h>\n");      
+      fprintf(targetSourceFile, "const unsigned char Score[] PROGMEM ={\n");
+      fprintf(targetSourceFile, "#else\n");
+      fprintf(targetSourceFile, "const unsigned char Score[]={\n");
+      fprintf(targetSourceFile, "#endif\n");            
+      int lineCounter = 0;
+      for (auto b : mem)
       {
-            fprintf(targetSourceFile,"0x%02x,",(unsigned char)b);
-            if(lineCounter>16)
+            fprintf(targetSourceFile, "0x%02x,", (unsigned char)b);
+            if (lineCounter > 16)
             {
-                  fprintf(targetSourceFile,"\n");
-                  lineCounter=0;
+                  fprintf(targetSourceFile, "\n");
+                  lineCounter = 0;
             }
             lineCounter++;
-            
       }
-      fprintf(targetSourceFile,"};\n");
+      fprintf(targetSourceFile, "};\n");
       fclose(targetSourceFile);
 }
 
@@ -120,8 +219,8 @@ void convertMemToHexFile(vector<char> &mem, string originalHexFilePath, string t
       /* Decode file                                                            */
       intelHexInput >> ihMusicBoxFirmRom;
       ihMusicBoxFirmRom.end();
-      unsigned long addr = ihMusicBoxFirmRom.currentAddress()+1;
-      cout<<"The score data located at: 0x"<<setfill('0') << uppercase << hex << addr <<endl;
+      unsigned long addr = ihMusicBoxFirmRom.currentAddress() + 1;
+      cout << "The score data located at: 0x" << setfill('0') << uppercase << hex << addr << endl;
       for (auto &byte : mem)
       {
             ihMusicBoxFirmRom.overwriteData(byte, addr++);
@@ -147,6 +246,9 @@ void checkOptions(Options &opts, int argc, char *argv[])
       opts.define("d|download=b", "Download the hex file to mcu through micronucleus directly.");
       opts.define("m|midi=s", "Midi file path.");
       opts.define("device=s", "Target mcu.");
+      opts.define("l|scorelist=s", "Midi file list path.");
+      opts.define("lower=i", "Proper Lower Pitch");
+      opts.define("upper=i", "Proper Upper Pitch");
 
       opts.process(argc, argv);
 
