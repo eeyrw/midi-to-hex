@@ -26,7 +26,7 @@ void MidiHelper::getTickNoteMap(map<int, vector<int>> &tickNoteMap)
       {
             int command = midifile[0][i][0] & 0xf0;
             int channel = midifile[0][i][0] & 0x0f;
-            if (command == 0x90 && midifile[0][i][2] != 0 && channel!=0x09)
+            if (command == 0x90 && midifile[0][i][2] != 0 && channel != 0x09)
             {
                   key = midifile[0][i][1];
                   int t = static_cast<int>(midifile.getTimeInSeconds(midifile[0][i].tick) * tickPerSecond);
